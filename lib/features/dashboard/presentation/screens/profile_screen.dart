@@ -51,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildTabSwitcher(bool isDarkMode) {
     final Color tabBackgroundColor = isDarkMode
-        ? const Color(0xFF00040E)
+        ? const Color.fromARGB(96, 87, 88, 88)
         : const Color.fromARGB(85, 163, 163, 163);
     final Color activeTextColor = isDarkMode ? Colors.black : Colors.black;
     final Color inactiveTextColor = isDarkMode

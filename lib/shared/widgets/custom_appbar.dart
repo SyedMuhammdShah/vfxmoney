@@ -29,46 +29,52 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     // Theme-based colors
     final Color backgroundColor = Theme.of(context).scaffoldBackgroundColor;
     final Color textColor = Theme.of(context).colorScheme.onSurface;
-    final Color secondaryTextColor = isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600;
+    final Color secondaryTextColor = isDarkMode
+        ? Colors.grey.shade400
+        : Colors.grey.shade600;
     final Color iconColor = Theme.of(context).colorScheme.onSurface;
-    final Color borderColor = isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200;
-    final Color avatarBackgroundColor = isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300;
+    final Color borderColor = isDarkMode
+        ? Colors.grey.shade800
+        : Colors.grey.shade200;
+    final Color avatarBackgroundColor = isDarkMode
+        ? Colors.grey.shade700
+        : Colors.grey.shade300;
 
-    /* ----------  default right-side icons  ---------- */
     List<Widget> defaultActions() => [
       IconButton(
-        icon: Icon(Icons.settings_outlined, color: iconColor),
+        // settings
+        padding: EdgeInsets.zero, // <-- remove the default 8 px
+        icon: Icon(Icons.settings_outlined, color: iconColor, size: 17),
         onPressed: () => context.pushNamed(Routes.settings.name),
       ),
-      Padding(
-        padding: const EdgeInsets.only(right: 16),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            IconButton(
-              icon: Icon(Icons.notifications_none, color: iconColor),
-              onPressed: () {
-                /* TODO notifications */
-              },
-            ),
-            Positioned(
-              top: 10,
-              right: 12,
-              child: Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor, // Green Velvet
-                  shape: BoxShape.circle,
-                ),
+
+      Stack(
+        alignment: Alignment.center,
+        children: [
+          IconButton(
+            padding: EdgeInsets.zero,
+            icon: Icon(Icons.notifications_none, color: iconColor, size: 17),
+            onPressed: () {
+              /* TODO */
+            },
+          ),
+          Positioned(
+            top: 10,
+            right: 12,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+                shape: BoxShape.circle,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     ];
 
@@ -99,7 +105,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     color: avatarUrl == null ? avatarBackgroundColor : null,
                   ),
                   child: avatarUrl == null
-                      ? Icon(Icons.person, color: isDarkMode ? Colors.grey.shade300 : Colors.white)
+                      ? Icon(
+                          Icons.person,
+                          color: isDarkMode
+                              ? Colors.grey.shade300
+                              : Colors.white,
+                        )
                       : null,
                 ),
               ),
@@ -111,14 +122,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   AppText(
                     'Welcome Back',
                     color: secondaryTextColor,
-                    fontSize: 14,
+                    fontSize: 9,
                     w: FontWeight.w400,
                     textStyle: 'hb', // Using HubotSans
                   ),
                   AppText(
                     userName,
                     color: textColor,
-                    fontSize: 18,
+                    fontSize: 13,
                     w: FontWeight.w600,
                     textStyle: 'hb', // Using HubotSans
                   ),

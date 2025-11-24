@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_transitions/go_transitions.dart';
 import 'package:vfxmoney/core/constants/app_colors.dart';
-
 import 'package:vfxmoney/core/services/service_locator.dart';
 import 'package:vfxmoney/core/theme/app_theme.dart';
 import 'package:vfxmoney/features/auth/presentation/bloc/auth_bloc.dart';

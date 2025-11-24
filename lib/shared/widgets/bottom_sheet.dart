@@ -33,8 +33,8 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
   }
 
   final List<Map<String, dynamic>> items = [
-    {"icon": Icons.check_circle, "label": "Bookings"},
-    {"icon": Icons.credit_card, "label": "Payments"},
+    {"icon": Icons.check_circle, "label": "Home"},
+    {"icon": Icons.credit_card, "label": "My Cards"},
     {"icon": Icons.add, "label": ""},
     {"icon": Icons.history, "label": "Transactions"},
     {"icon": Icons.person, "label": "Profile"},
