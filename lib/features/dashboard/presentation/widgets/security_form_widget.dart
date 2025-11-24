@@ -33,10 +33,6 @@ class _SecurityFormState extends State<SecurityForm> {
         key: _formKey,
         child: Column(
           children: [
-            // Password Change Section
-            _buildSectionHeader('Change Password'),
-            const SizedBox(height: 16),
-
             // Current Password
             AppInputField(
               controller: _currentPasswordController,
@@ -104,54 +100,42 @@ class _SecurityFormState extends State<SecurityForm> {
                 return null;
               },
             ),
-            const SizedBox(height: 24),
 
-            // Google Authenticator Section
-            _buildSectionHeader('Google Authenticator'),
             const SizedBox(height: 16),
 
             // Google Authenticator Description
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.bgGreyColor,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: AppColors.greytextColor.withOpacity(0.3),
-                ),
-              ),
+              padding: const EdgeInsets.all(10),
+
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AppText(
-                    'Google Authenticator codes synchronized across all your devices',
+                    'Google Authenticator',
                     fontSize: 14,
                     color: Colors.white,
-                    textStyle: 'jb',
+                    textStyle: 'hb',
                   ),
-                  const SizedBox(height: 16),
-
-                  // Toggle Switch
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       AppText(
-                        'Enable Google Authenticator',
-                        fontSize: 14,
+                        'Google Authenticator codes synchronized\n across all your devices',
+                        fontSize: 8,
                         color: Colors.white,
                         textStyle: 'jb',
                         w: FontWeight.w500,
                       ),
-                      Switch(
-                        value: _googleAuthenticatorEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            _googleAuthenticatorEnabled = value;
-                          });
-                        },
-                        activeColor: AppColors.greenVelvet,
-                        inactiveTrackColor: AppColors.greytextColor,
+                      Transform.scale(
+                        scale: 0.8,
+                        child: Switch(
+                          value: _googleAuthenticatorEnabled,
+                          onChanged: (v) =>
+                              setState(() => _googleAuthenticatorEnabled = v),
+                          activeColor: AppColors.greenVelvet,
+                          inactiveTrackColor: AppColors.greytextColor,
+                        ),
                       ),
                     ],
                   ),

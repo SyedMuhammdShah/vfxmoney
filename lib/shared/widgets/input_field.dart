@@ -31,14 +31,34 @@ class _AppInputFieldState extends State<AppInputField> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    // Theme-based colors
+    final Color backgroundColor = isDarkMode
+        ? const Color.fromARGB(90, 205, 206, 208)
+        : const Color.fromARGB(155, 201, 200, 200);
+    final Color textColor = Theme.of(context).colorScheme.onSurface;
+    final Color hintTextColor = isDarkMode
+        ? Colors.grey.shade400
+        : Colors.grey.shade600;
+    final Color iconColor = isDarkMode
+        ? Colors.grey.shade400
+        : Colors.grey.shade600;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          height: 52,
+          height: 45,
           decoration: BoxDecoration(
-            color: AppColors.bgGreyColor,
+            color: backgroundColor,
             borderRadius: BorderRadius.circular(40),
+            border: Border.all(
+              color: errorNotifier.value != null
+                  ? Colors.redAccent
+                  : Colors.transparent,
+              width: 1,
+            ),
           ),
           child: TextFormField(
             controller: widget.controller,
@@ -57,19 +77,19 @@ class _AppInputFieldState extends State<AppInputField> {
 
             autovalidateMode: AutovalidateMode.onUserInteraction,
 
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'JetBrainsMono',
               fontSize: 14,
-              color: Colors.white,
+              color: textColor,
             ),
 
             decoration: InputDecoration(
               hintText: widget.hintText,
               border: InputBorder.none,
-              hintStyle: const TextStyle(
+              hintStyle: TextStyle(
                 fontFamily: 'JetBrainsMono',
-                fontSize: 14,
-                color: AppColors.greytextColor,
+                fontSize: 11,
+                color: hintTextColor,
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -81,7 +101,7 @@ class _AppInputFieldState extends State<AppInputField> {
                         widget.obscureText
                             ? Icons.visibility_off
                             : Icons.visibility,
-                        color: AppColors.greytextColor,
+                        color: iconColor,
                         size: 20,
                       ),
                       onPressed: widget.onToggleObscure,
@@ -115,5 +135,11 @@ class _AppInputFieldState extends State<AppInputField> {
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    errorNotifier.dispose();
+    super.dispose();
   }
 }

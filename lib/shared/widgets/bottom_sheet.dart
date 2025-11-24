@@ -35,8 +35,8 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
   final List<Map<String, dynamic>> items = [
     {"icon": Icons.check_circle, "label": "Bookings"},
     {"icon": Icons.credit_card, "label": "Payments"},
-    {"icon": Icons.add, "label": ""}, // dummy entry
-    {"icon": Icons.history, "label": "History"},
+    {"icon": Icons.add, "label": ""},
+    {"icon": Icons.history, "label": "Transactions"},
     {"icon": Icons.person, "label": "Profile"},
   ];
 
@@ -46,12 +46,20 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     // Theme-based colors with specific background colors
-    final Color navBarColor = isDarkMode ? const Color(0xFF00040E) : Colors.black;
-    final Color activeIconColor = Theme.of(context).primaryColor; // Green Velvet
+    final Color navBarColor = isDarkMode
+        ? const Color(0xFF00040E)
+        : Colors.black;
+    final Color activeIconColor = Theme.of(
+      context,
+    ).primaryColor; // Green Velvet
     final Color inactiveIconColor = isDarkMode ? Colors.white : Colors.white;
     final Color labelColor = isDarkMode ? Colors.white : Colors.white;
-    final Color activeBackgroundColor = isDarkMode ? Colors.white : Colors.white;
-    final Color addButtonIconColor = isDarkMode ? const Color(0xFF00040E) : Colors.black;
+    final Color activeBackgroundColor = isDarkMode
+        ? Colors.white
+        : Colors.white;
+    final Color addButtonIconColor = isDarkMode
+        ? const Color(0xFF00040E)
+        : Colors.black;
 
     return Scaffold(
       extendBody: true,
@@ -68,7 +76,7 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
             index: currentIndex,
             height: 70,
             color: navBarColor,
-            buttonBackgroundColor: activeBackgroundColor,
+            buttonBackgroundColor: Colors.transparent,
             backgroundColor: Colors.transparent,
             animationCurve: Curves.easeInOut,
             animationDuration: const Duration(milliseconds: 300),

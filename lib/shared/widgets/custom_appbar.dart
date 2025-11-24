@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vfxmoney/core/navigation/route_enums.dart';
+import 'app_text.dart'; // Import your AppText widget
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -27,10 +28,20 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
+    // Theme-based colors
+    final Color backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final Color textColor = Theme.of(context).colorScheme.onSurface;
+    final Color secondaryTextColor = isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600;
+    final Color iconColor = Theme.of(context).colorScheme.onSurface;
+    final Color borderColor = isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200;
+    final Color avatarBackgroundColor = isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300;
+
     /* ----------  default right-side icons  ---------- */
     List<Widget> defaultActions() => [
       IconButton(
-        icon: const Icon(Icons.settings_outlined, color: Colors.black54),
+        icon: Icon(Icons.settings_outlined, color: iconColor),
         onPressed: () => context.pushNamed(Routes.settings.name),
       ),
       Padding(
@@ -39,7 +50,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           alignment: Alignment.center,
           children: [
             IconButton(
-              icon: const Icon(Icons.notifications_none, color: Colors.black54),
+              icon: Icon(Icons.notifications_none, color: iconColor),
               onPressed: () {
                 /* TODO notifications */
               },
@@ -50,8 +61,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: Container(
                 width: 8,
                 height: 8,
-                decoration: const BoxDecoration(
-                  color: Colors.green,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor, // Green Velvet
                   shape: BoxShape.circle,
                 ),
               ),
@@ -65,7 +76,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       return AppBar(
         automaticallyImplyLeading: implyLeading,
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: backgroundColor,
         titleSpacing: 0,
         title: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -78,17 +89,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   height: 40,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey.shade200, width: 1),
+                    border: Border.all(color: borderColor, width: 1),
                     image: avatarUrl != null
                         ? DecorationImage(
                             image: NetworkImage(avatarUrl!),
                             fit: BoxFit.cover,
                           )
                         : null,
-                    color: avatarUrl == null ? Colors.grey.shade300 : null,
+                    color: avatarUrl == null ? avatarBackgroundColor : null,
                   ),
                   child: avatarUrl == null
-                      ? const Icon(Icons.person, color: Colors.white)
+                      ? Icon(Icons.person, color: isDarkMode ? Colors.grey.shade300 : Colors.white)
                       : null,
                 ),
               ),
@@ -97,22 +108,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
+                  AppText(
                     'Welcome Back',
-                    style: TextStyle(
-                      color: Colors.black54,
-                      fontSize: 14,
-                      height: 1.1,
-                    ),
+                    color: secondaryTextColor,
+                    fontSize: 14,
+                    w: FontWeight.w400,
+                    textStyle: 'hb', // Using HubotSans
                   ),
-                  Text(
+                  AppText(
                     userName,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      height: 1.2,
-                    ),
+                    color: textColor,
+                    fontSize: 18,
+                    w: FontWeight.w600,
+                    textStyle: 'hb', // Using HubotSans
                   ),
                 ],
               ),
@@ -126,15 +134,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       automaticallyImplyLeading: implyLeading,
       elevation: 0,
-      backgroundColor: Colors.white,
-      title: Text(
+      backgroundColor: backgroundColor,
+      title: AppText(
         title,
-        style: const TextStyle(
-          color: Colors.black,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.15,
-        ),
+        color: textColor,
+        fontSize: 20,
+        w: FontWeight.w600,
+        textStyle: 'hb', // Using HubotSans for titles
       ),
       centerTitle: true,
       actions: actions ?? defaultActions(),

@@ -18,8 +18,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: CustomAppBar(
         title: _currentTabIndex == 0 ? 'Profile' : 'Security',
         implyLeading: true,
@@ -30,27 +32,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // // Header
-              // Row(
-              //   children: [
-              //     IconButton(
-              //       icon: const Icon(Icons.arrow_back, color: Colors.white),
-              //       onPressed: () => Navigator.pop(context),
-              //     ),
-              //     const SizedBox(width: 16),
-              //     AppText(
-              //       _currentTabIndex == 0 ? 'Profile' : 'Security',
-              //       fontSize: 20,
-              //       color: Colors.white,
-              //       textStyle: 'jb',
-              //       w: FontWeight.w600,
-              //     ),
-              //   ],
-              // ),
-              // const SizedBox(height: 20),
-
               // Tab Switcher
-              _buildTabSwitcher(),
+              _buildTabSwitcher(isDarkMode),
               const SizedBox(height: 24),
 
               // Content based on selected tab
@@ -66,11 +49,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildTabSwitcher() {
+  Widget _buildTabSwitcher(bool isDarkMode) {
+    final Color tabBackgroundColor = isDarkMode
+        ? const Color(0xFF00040E)
+        : const Color.fromARGB(85, 163, 163, 163);
+    final Color activeTextColor = isDarkMode ? Colors.black : Colors.black;
+    final Color inactiveTextColor = isDarkMode
+        ? Colors.white
+        : Colors.grey.shade700;
+
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: AppColors.bgGreyColor,
+        color: tabBackgroundColor,
         borderRadius: BorderRadius.circular(24),
       ),
       child: Row(
@@ -83,21 +74,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 margin: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: _currentTabIndex == 0
-                      ? AppColors.greenVelvet
+                      ? Theme.of(context)
+                            .primaryColor // Green Velvet
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Center(
-                  child: Text(
+                  child: AppText(
                     'Profile',
-                    style: TextStyle(
-                      fontFamily: 'JetBrainsMono',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: _currentTabIndex == 0
-                          ? AppColors.black
-                          : Colors.white,
-                    ),
+                    color: _currentTabIndex == 0
+                        ? activeTextColor
+                        : inactiveTextColor,
+                    fontSize: 14,
+                    w: FontWeight.w500,
+                    textStyle: 'jb', // JetBrainsMono
                   ),
                 ),
               ),
@@ -111,21 +101,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 margin: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: _currentTabIndex == 1
-                      ? AppColors.greenVelvet
+                      ? Theme.of(context)
+                            .primaryColor // Green Velvet
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Center(
-                  child: Text(
+                  child: AppText(
                     'Security',
-                    style: TextStyle(
-                      fontFamily: 'JetBrainsMono',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: _currentTabIndex == 1
-                          ? AppColors.black
-                          : Colors.white,
-                    ),
+                    color: _currentTabIndex == 1
+                        ? activeTextColor
+                        : inactiveTextColor,
+                    fontSize: 14,
+                    w: FontWeight.w500,
+                    textStyle: 'jb', // JetBrainsMono
                   ),
                 ),
               ),

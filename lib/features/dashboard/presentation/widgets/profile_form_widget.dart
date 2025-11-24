@@ -42,13 +42,29 @@ class _ProfileFormState extends State<ProfileForm> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final Color sectionBackgroundColor = isDarkMode
+        ? const Color(0xFF00040E)
+        : Colors.grey.shade200;
+    final Color textColor = Theme.of(context).colorScheme.onSurface;
+    final Color hintTextColor = isDarkMode
+        ? Colors.grey.shade400
+        : Colors.grey.shade600;
+    final Color dropdownIconColor = isDarkMode
+        ? Colors.grey.shade400
+        : Colors.grey.shade600;
+
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
         child: Column(
           children: [
             // Personal Information Section
-            _buildSectionHeader('Personal Information'),
+            // _buildSectionHeader(
+            //   'Personal Information',
+            //   sectionBackgroundColor,
+            //   textColor,
+            // ),
             const SizedBox(height: 16),
 
             // First Name & Middle Name
@@ -124,6 +140,10 @@ class _ProfileFormState extends State<ProfileForm> {
                     value: _selectedGender,
                     items: _genders,
                     hintText: 'Gender',
+                    backgroundColor: sectionBackgroundColor,
+                    textColor: textColor,
+                    hintTextColor: hintTextColor,
+                    iconColor: dropdownIconColor,
                     onChanged: (value) {
                       setState(() {
                         _selectedGender = value!;
@@ -152,10 +172,10 @@ class _ProfileFormState extends State<ProfileForm> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            //const SizedBox(height: 24),
 
             // Address Section
-            _buildSectionHeader('Address'),
+            //  _buildSectionHeader('Address', sectionBackgroundColor, textColor),
             const SizedBox(height: 16),
 
             // Address Line 1
@@ -247,10 +267,14 @@ class _ProfileFormState extends State<ProfileForm> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            // const SizedBox(height: 24),
 
-            // Contact Information Section
-            _buildSectionHeader('Contact Information'),
+            // // Contact Information Section
+            // _buildSectionHeader(
+            //   'Contact Information',
+            //   sectionBackgroundColor,
+            //   textColor,
+            // ),
             const SizedBox(height: 16),
 
             // Calling Code & Mobile Number
@@ -320,10 +344,14 @@ class _ProfileFormState extends State<ProfileForm> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            // const SizedBox(height: 24),
 
-            // Additional Information Section
-            _buildSectionHeader('Additional Information'),
+            // // Additional Information Section
+            // _buildSectionHeader(
+            //   'Additional Information',
+            //   sectionBackgroundColor,
+            //   textColor,
+            // ),
             const SizedBox(height: 16),
 
             // Place Of Birth & Occupation
@@ -399,18 +427,22 @@ class _ProfileFormState extends State<ProfileForm> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(
+    String title,
+    Color backgroundColor,
+    Color textColor,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.bgGreyColor,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(8),
       ),
       child: AppText(
         title,
         fontSize: 14,
-        color: Colors.white,
+        color: textColor,
         textStyle: 'jb',
         w: FontWeight.w600,
       ),
@@ -421,14 +453,20 @@ class _ProfileFormState extends State<ProfileForm> {
     required String value,
     required List<String> items,
     required String hintText,
+    required Color backgroundColor,
+    required Color textColor,
+    required Color hintTextColor,
+    required Color iconColor,
     required Function(String?) onChanged,
   }) {
     return Container(
       height: 52,
       decoration: BoxDecoration(
-        color: AppColors.bgGreyColor,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.greytextColor.withOpacity(0.3)),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+        ),
       ),
       child: DropdownButtonFormField<String>(
         value: value,
@@ -438,7 +476,7 @@ class _ProfileFormState extends State<ProfileForm> {
             child: AppText(
               value,
               fontSize: 14,
-              color: Colors.white,
+              color: textColor,
               textStyle: 'jb',
             ),
           );
@@ -447,20 +485,20 @@ class _ProfileFormState extends State<ProfileForm> {
         decoration: InputDecoration(
           hintText: hintText,
           border: InputBorder.none,
-          hintStyle: const TextStyle(
+          hintStyle: TextStyle(
             fontFamily: 'JetBrainsMono',
             fontSize: 14,
-            color: AppColors.greytextColor,
+            color: hintTextColor,
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         ),
-        dropdownColor: AppColors.bgGreyColor,
-        style: const TextStyle(
+        dropdownColor: backgroundColor,
+        style: TextStyle(
           fontFamily: 'JetBrainsMono',
           fontSize: 14,
-          color: Colors.white,
+          color: textColor,
         ),
-        icon: const Icon(Icons.arrow_drop_down, color: AppColors.greytextColor),
+        icon: Icon(Icons.arrow_drop_down, color: iconColor),
         isExpanded: true,
       ),
     );
@@ -469,9 +507,13 @@ class _ProfileFormState extends State<ProfileForm> {
   void _updateProfile() {
     if (_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profile updated successfully!'),
-          backgroundColor: Colors.green,
+        SnackBar(
+          content: AppText(
+            'Profile updated successfully!',
+            color: Colors.white,
+            textStyle: 'jb',
+          ),
+          backgroundColor: Theme.of(context).primaryColor, // Green Velvet
         ),
       );
     }
