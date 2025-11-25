@@ -47,7 +47,7 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
 
     // Theme-based colors with specific background colors
     final Color navBarColor = isDarkMode
-        ? const Color(0xFF00040E)
+        ? const Color.fromARGB(255, 36, 44, 61)
         : Colors.black;
     final Color activeIconColor = Theme.of(
       context,
@@ -56,7 +56,7 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
     final Color labelColor = isDarkMode ? Colors.white : Colors.white;
     final Color activeBackgroundColor = isDarkMode
         ? Colors.white
-        : Colors.white;
+        : const Color.fromARGB(255, 12, 12, 12);
     final Color addButtonIconColor = isDarkMode
         ? const Color(0xFF00040E)
         : Colors.black;

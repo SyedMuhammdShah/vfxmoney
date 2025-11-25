@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vfxmoney/core/constants/app_icons.dart';
 import 'package:vfxmoney/core/navigation/route_enums.dart';
 import 'package:vfxmoney/features/auth/presentation/widgets/auth_tab_switcher.dart';
 import 'package:vfxmoney/features/auth/presentation/widgets/login_form_widget.dart';
@@ -65,7 +66,6 @@ class _VortexAuthScreenState extends State<VortexAuthScreen> {
 
               const SizedBox(height: 28),
 
-              /// 🔥 USE REUSABLE TAB SWITCHER
               AuthTabSwitcher(
                 isLogin: _isLogin,
                 onLoginTap: () => setState(() => _isLogin = true),
@@ -74,7 +74,6 @@ class _VortexAuthScreenState extends State<VortexAuthScreen> {
 
               const SizedBox(height: 28),
 
-              /// 🔥 SWITCH BETWEEN LOGIN & SIGNUP WIDGETS
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 transitionBuilder: (child, anim) =>
@@ -102,49 +101,8 @@ class _VortexAuthScreenState extends State<VortexAuthScreen> {
     return SizedBox(
       width: 80,
       height: 80,
-      child: CustomPaint(painter: VortexLogoPainter()),
+      child: Image.asset(AppIcons.logo),
+      //child: CustomPaint(painter: VortexLogoPainter()),
     );
   }
-}
-
-/// Vortex Logo
-class VortexLogoPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-
-    // Left arm
-    final path = Path()
-      ..moveTo(size.width * 0.1, size.height * 0.15)
-      ..lineTo(size.width * 0.5, size.height * 0.85)
-      ..lineTo(size.width * 0.5, size.height * 0.65)
-      ..lineTo(size.width * 0.25, size.height * 0.15)
-      ..close();
-    paint.color = const Color(0xFF4ADE80);
-    canvas.drawPath(path, paint);
-
-    // Right arm
-    final path2 = Path()
-      ..moveTo(size.width * 0.9, size.height * 0.15)
-      ..lineTo(size.width * 0.5, size.height * 0.85)
-      ..lineTo(size.width * 0.5, size.height * 0.65)
-      ..lineTo(size.width * 0.75, size.height * 0.15)
-      ..close();
-    canvas.drawPath(path2, paint);
-
-    // Checkmark overlay
-    paint.color = const Color(0xFF22C55E);
-    final checkPath = Path()
-      ..moveTo(size.width * 0.35, size.height * 0.45)
-      ..lineTo(size.width * 0.5, size.height * 0.65)
-      ..lineTo(size.width * 0.85, size.height * 0.2)
-      ..lineTo(size.width * 0.75, size.height * 0.15)
-      ..lineTo(size.width * 0.5, size.height * 0.45)
-      ..lineTo(size.width * 0.4, size.height * 0.35)
-      ..close();
-    canvas.drawPath(checkPath, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

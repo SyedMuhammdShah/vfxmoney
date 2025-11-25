@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vfxmoney/core/navigation/route_enums.dart';
 import 'package:vfxmoney/features/dashboard/presentation/widgets/card_widget.dart';
 import 'package:vfxmoney/features/dashboard/presentation/widgets/transaction_widget.dart';
 import 'package:vfxmoney/shared/widgets/custom_appbar.dart';
@@ -20,7 +22,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         userName: 'Robert Antonio',
         avatarUrl:
             'https://img.icons8.com/?size=128&id=tZuAOUGm9AuS&format=png',
-        onAvatarTap: () => print('avatar tapped'),
+        onAvatarTap: () {
+          context.pushNamed(Routes.userProfile.name);
+        },
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 24),

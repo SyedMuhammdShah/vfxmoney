@@ -26,30 +26,33 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          /// 🔥 FULL-SCREEN GIF BACKGROUND
-          Image.asset(
-            AppIcons.splashBG, // assets/gif/vortex.gif
-            fit: BoxFit.cover,
-          ),
-
-          /// Foreground content
-          SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                // AppLogo(),
-                SizedBox(height: 30),
-                // Text(
-                //   'Loading...',
-                //   style: TextStyle(color: Colors.white70, fontSize: 12),
-                // ),
-              ],
+      body: Container(
+        //padding: const EdgeInsets.only(top: 0),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            /// 🔥 FULL-SCREEN GIF BACKGROUND
+            Image.asset(
+              AppIcons.splashBG, // assets/gif/vortex.gif
+              fit: BoxFit.fill,
             ),
-          ),
-        ],
+        
+            /// Foreground content
+            SafeArea(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  // AppLogo(),
+                  SizedBox(height: 30),
+                  // Text(
+                  //   'Loading...',
+                  //   style: TextStyle(color: Colors.white70, fontSize: 12),
+                  // ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -22,7 +22,7 @@ class SettingsScreen extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
+                  horizontal: 10,
                   vertical: 14,
                 ),
                 decoration: BoxDecoration(

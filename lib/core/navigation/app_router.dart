@@ -14,6 +14,7 @@ import 'package:vfxmoney/features/auth/presentation/screens/login_screen.dart';
 import 'package:vfxmoney/features/auth/presentation/screens/otp_screen.dart';
 import 'package:vfxmoney/features/auth/presentation/screens/signup_screen.dart';
 import 'package:vfxmoney/features/auth/presentation/screens/verify_account_screen.dart';
+import 'package:vfxmoney/features/profile/presentation/screens/user_profile_screen.dart';
 import 'package:vfxmoney/features/setting/presentation/screens/settings.dart';
 import 'package:vfxmoney/shared/screens/onboarding_screen.dart';
 import 'package:vfxmoney/shared/widgets/delete_account.dart';
