@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   static const Color greenVelvet = Color(0xFF51FA7B);
+  static const Color bgBlack = Color(0xFF0B0E12);
+
   static const Color lightgreenVelvet = Color.fromARGB(77, 22, 160, 132);
   static const Color lightGreenVelvet = Color.fromARGB(51, 22, 160, 132);
   static const Color melodicWhisper = Color(0xFFF5F5F5);

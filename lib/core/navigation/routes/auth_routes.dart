@@ -4,7 +4,10 @@ final authRoutes = [
   GoRoute(
     name: Routes.login.name,
     path: Routes.login.path,
-    builder: (context, state) => const VortexAuthScreen(),
+    builder: (context, state) => Theme(
+      data: AppTheme.dark, // Force dark theme
+      child: const VortexAuthScreen(),
+    ),
     pageBuilder: GoTransitions.openUpwards.call,
   ),
   GoRoute(

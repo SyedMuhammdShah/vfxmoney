@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:vfxmoney/features/dashboard/presentation/widgets/flip_card_widget.dart';
+import 'package:vfxmoney/shared/model/form_field_Model.dart';
 import 'package:vfxmoney/shared/widgets/app_text.dart';
+import 'package:vfxmoney/shared/widgets/custom_dynamic_for_popup.dart';
 
 class VortexCardWalletWidget extends StatefulWidget {
   const VortexCardWalletWidget({Key? key}) : super(key: key);
@@ -171,18 +174,27 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
                   label: 'Load',
                   color: Theme.of(context).primaryColor, // Green Velvet
                   isActive: true,
+                  onTap: () {
+                    _showLoadMoneyPopup(context);
+                  },
                 ),
                 _buildActionButton(
                   icon: Icons.account_balance_wallet_outlined,
                   label: 'Unload',
                   color: Theme.of(context).colorScheme.secondary,
                   isActive: false,
+                  onTap: () {
+                    _showUnloadMoneyPopup(context);
+                  },
                 ),
                 _buildActionButton(
                   icon: Icons.receipt_long_outlined,
                   label: 'Transaction',
                   color: Theme.of(context).colorScheme.secondary,
                   isActive: false,
+                  onTap: () {
+                    _showCreateCardPopup(context);
+                  },
                 ),
                 _buildActionButton(
                   icon: Icons.lock_outline,
@@ -203,37 +215,44 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
     required String label,
     required Color color,
     required bool isActive,
+    VoidCallback? onTap, // <-- new param
   }) {
-    return Column(
-      children: [
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            color: isActive
-                ? color.withOpacity(0.2)
-                : Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(25),
-            border: Border.all(
-              color: isActive ? color : Colors.transparent,
-              width: 1.5,
+    return InkWell(
+      // makes it clickable
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(25),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: isActive
+                  ? color.withOpacity(0.2)
+                  : Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(25),
+              border: Border.all(
+                color: isActive ? color : Colors.transparent,
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: isActive ? color : Theme.of(context).colorScheme.secondary,
+              size: 24,
             ),
           ),
-          child: Icon(
-            icon,
+          const SizedBox(height: 6),
+          AppText(
+            label,
+            fontSize: 10,
             color: isActive ? color : Theme.of(context).colorScheme.secondary,
-            size: 24,
+            textStyle: 'jb',
+            w: FontWeight.w500,
           ),
-        ),
-        const SizedBox(height: 6),
-        AppText(
-          label,
-          fontSize: 10,
-          color: isActive ? color : Theme.of(context).colorScheme.secondary,
-          textStyle: 'jb',
-          w: FontWeight.w500,
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -254,359 +273,97 @@ class CardData {
   });
 }
 
-class FlippableCard extends StatefulWidget {
-  final CardData cardData;
-
-  const FlippableCard({Key? key, required this.cardData}) : super(key: key);
-
-  @override
-  State<FlippableCard> createState() => _FlippableCardState();
+void _showLoadMoneyPopup(BuildContext context) {
+  DynamicFormPopup.show(
+    context: context,
+    title: 'Load Money',
+    subtitle: 'Deposit your fund in your Card',
+    fields: [
+      FormFieldData(
+        label: 'Amount',
+        labelSuffix: '(USD)',
+        hintText: '\$500',
+        keyboardType: TextInputType.number,
+        prefixText: '\$',
+      ),
+      FormFieldData(
+        label: 'Payment Method',
+        hintText: 'Crypto',
+        isDropdown: true,
+        dropdownItems: ['Crypto', 'Bank Transfer', 'Credit Card'],
+      ),
+      FormFieldData(
+        label: 'Proof of Payment',
+        hintText: 'Screen Shoot',
+        isFilePicker: true,
+        helperText: 'Click here  this link preview image',
+        helperActionText: 'Click here',
+      ),
+    ],
+    buttonText: 'Confirm Load Money',
+    onSubmit: (values) {
+      print('Load Money Values: $values');
+    },
+  );
 }
 
-class _FlippableCardState extends State<FlippableCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-  bool _showFront = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-    _animation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _flipCard() {
-    if (_showFront) {
-      _controller.forward();
-    } else {
-      _controller.reverse();
-    }
-    setState(() {
-      _showFront = !_showFront;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _flipCard,
-      child: AnimatedBuilder(
-        animation: _animation,
-        builder: (context, child) {
-          final angle = _animation.value * math.pi;
-          final transform = Matrix4.identity()
-            ..setEntry(3, 2, 0.001)
-            ..rotateY(angle);
-
-          return Transform(
-            transform: transform,
-            alignment: Alignment.center,
-            child: angle < math.pi / 2
-                ? _buildFrontCard()
-                : Transform(
-                    transform: Matrix4.identity()..rotateY(math.pi),
-                    alignment: Alignment.center,
-                    child: _buildBackCard(),
-                  ),
-          );
-        },
+void _showUnloadMoneyPopup(BuildContext context) {
+  DynamicFormPopup.show(
+    context: context,
+    title: 'Unload Money',
+    subtitle: 'Enter the details to unload funds for\nCard **** **** **** 2375',
+    fields: [
+      FormFieldData(
+        label: 'Amount',
+        labelSuffix: '(USD)',
+        hintText: '\$500',
+        keyboardType: TextInputType.number,
+        prefixText: '\$',
+        isDropdown: true,
       ),
-    );
-  }
-
-  Widget _buildFrontCard() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16), // Slightly smaller radius
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF5A8B6F), Color(0xFF3D6B54), Color(0xFF2D5441)],
-        ),
+      FormFieldData(
+        label: 'Wallet Address',
+        labelSuffix: '(USD)',
+        hintText: '0Xabc123',
+        keyboardType: TextInputType.text,
       ),
-      child: Stack(
-        children: [
-          Positioned.fill(child: CustomPaint(painter: CardPatternPainter())),
-          Padding(
-            padding: const EdgeInsets.all(18), // Reduced padding
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top Row - Made more compact
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 40, // Reduced from 50
-                          height: 30, // Reduced from 38
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFD4AF37),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 3, // Reduced
-                                margin: const EdgeInsets.only(
-                                  top: 6,
-                                ), // Reduced
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFB8941F),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Container(
-                                height: 16, // Reduced from 20
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 5, // Reduced
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFB8941F),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 8), // Reduced
-                        const Icon(
-                          Icons.contactless,
-                          color: Colors.white70,
-                          size: 22, // Reduced from 28
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: const [
-                        Icon(
-                          Icons.check_circle,
-                          color: Color(0xFF4CAF50),
-                          size: 16, // Reduced from 20
-                        ),
-                        SizedBox(width: 6), // Reduced
-                        Text(
-                          'VORTEX',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16, // Reduced from 20
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2, // Reduced
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                const Icon(
-                  Icons.trending_up,
-                  color: Color(0xFF4CAF50),
-                  size: 60, // Reduced from 80
-                ),
-                const Spacer(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                      width: 28, // Reduced from 36
-                      height: 28, // Reduced from 36
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFEB001B),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    Transform.translate(
-                      offset: const Offset(-10, 0), // Reduced offset
-                      child: Container(
-                        width: 28, // Reduced from 36
-                        height: 28, // Reduced from 36
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFF79E1B),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2), // Reduced
-                const Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    'mastercard',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12, // Reduced from 14
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+      FormFieldData(
+        label: 'Blockchain',
+        hintText: 'Eg. Ethereum',
+        isDropdown: true,
+        dropdownItems: ['Ethereum', 'Bitcoin', 'Polygon', 'BSC'],
       ),
-    );
-  }
-
-  Widget _buildBackCard() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16), // Reduced from 20
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF3D6B54), Color(0xFF2D5441), Color(0xFF1E3A2C)],
-        ),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 20), // Reduced from 30
-          Container(height: 40, color: Colors.black), // Reduced from 50
-          const SizedBox(height: 15), // Reduced from 20
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18), // Reduced
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 32, // Reduced from 40
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                    ), // Reduced
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          'CVV: 123',
-                          style: TextStyle(
-                            color: Colors.grey.shade800,
-                            fontSize: 11, // Reduced
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 15), // Reduced from 20
-                Text(
-                  widget.cardData.cardNumber,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16, // Reduced from 18
-                    letterSpacing: 1.5, // Reduced
-                  ),
-                ),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Card Holder',
-                          style: TextStyle(
-                            color: Colors.grey.shade400,
-                            fontSize: 9, // Reduced
-                          ),
-                        ),
-                        const SizedBox(height: 3), // Reduced
-                        Text(
-                          widget.cardData.holderName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12, // Reduced from 14
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Expires',
-                          style: TextStyle(
-                            color: Colors.grey.shade400,
-                            fontSize: 9, // Reduced
-                          ),
-                        ),
-                        const SizedBox(height: 3), // Reduced
-                        Text(
-                          widget.cardData.expiryDate,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12, // Reduced from 14
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+    ],
+    buttonText: 'Confirm Unload Money',
+    onSubmit: (values) {
+      print('Unload Money Values: $values');
+    },
+  );
 }
 
-class CardPatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withOpacity(0.05)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-
-    for (double i = 0; i < size.width; i += 20) {
-      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
-    }
-
-    for (double i = 0; i < size.height; i += 20) {
-      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
-    }
-
-    final chartPaint = Paint()
-      ..color = const Color(0xFF4CAF50).withOpacity(0.3)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    final path = Path();
-    path.moveTo(40, size.height * 0.6); // Adjusted for smaller card
-    path.lineTo(80, size.height * 0.4);
-    path.lineTo(120, size.height * 0.5);
-    path.lineTo(160, size.height * 0.3);
-    path.lineTo(200, size.height * 0.45);
-    path.lineTo(240, size.height * 0.25);
-
-    canvas.drawPath(path, chartPaint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
+void _showCreateCardPopup(BuildContext context) {
+  DynamicFormPopup.show(
+    context: context,
+    title: 'Create New Card',
+    subtitle: 'Enter details for your new virtual card.',
+    fields: [
+      FormFieldData(
+        label: 'Card Name',
+        labelSuffix: '(Alias)',
+        hintText: 'Alias',
+        keyboardType: TextInputType.text,
+      ),
+      FormFieldData(
+        label: 'Card Type',
+        hintText: 'Virtual Card',
+        isDropdown: true,
+        dropdownItems: ['Virtual Card', 'Physical Card'],
+      ),
+    ],
+    footerText: 'Fees: Physical Card (Fee 100\$) or Virtual Card Fee 50%',
+    buttonText: 'Create Card',
+    onSubmit: (values) {
+      print('Create Card Values: $values');
+    },
+  );
 }

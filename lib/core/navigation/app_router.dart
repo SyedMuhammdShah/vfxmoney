@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:go_transitions/go_transitions.dart';
 import 'package:vfxmoney/core/navigation/routes/main_shell_routes.dart';
 import 'package:vfxmoney/core/services/service_locator.dart';
+import 'package:vfxmoney/core/theme/app_theme.dart';
 import 'package:vfxmoney/features/auth/presentation/screens/change_pass_screen.dart';
 import 'package:vfxmoney/features/auth/presentation/screens/edit_profile.dart';
 import 'package:vfxmoney/features/auth/presentation/screens/forgot_pass_screen.dart';

@@ -32,7 +32,7 @@ class AppTheme {
   static ThemeData dark = ThemeData(
     brightness: Brightness.dark,
     primaryColor: AppColors.greenVelvet,
-    scaffoldBackgroundColor: Colors.black,
+    scaffoldBackgroundColor: AppColors.bgBlack,
     colorScheme: const ColorScheme.dark(
       primary: AppColors.greenShade,
       onPrimary: Colors.white,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vfxmoney/core/constants/app_colors.dart';
 import 'package:vfxmoney/shared/widgets/gap.dart';
-import 'package:vfxmoney/shared/widgets/input_field.dart';
 
 class PhoneInputField extends StatefulWidget {
   final TextEditingController controller;
