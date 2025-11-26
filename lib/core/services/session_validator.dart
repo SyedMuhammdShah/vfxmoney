@@ -9,7 +9,7 @@ class UserSessionManager {
   final StorageService _storage = locator<StorageService>();
 
   Future<void> validateAndRedirect(BuildContext context) async {
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 5));
 
     final token = _storage.getToken;
     final user = _storage.getUser;

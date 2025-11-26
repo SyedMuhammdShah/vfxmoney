@@ -22,6 +22,9 @@ enum Routes {
   // Settings
   settings('/settings'),
 
+  // Profile
+  userProfile('/userProfile'),
+
   enableLocationScreen('/enableLocationScreen'),
   addressSelection('/addressSelection'),
   addAddress('/addAddress'),

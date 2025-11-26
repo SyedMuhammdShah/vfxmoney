@@ -56,6 +56,13 @@ final authRoutes = [
     },
   ),
 
+  // User Profile
+  GoRoute(
+    path: Routes.userProfile.path,
+    name: Routes.userProfile.name,
+    builder: (context, state) => const UserProfileScreen(),
+  ),
+
   // GoRoute(
   //   name: Routes.enableLocationScreen.name,
   //   path: Routes.enableLocationScreen.path,

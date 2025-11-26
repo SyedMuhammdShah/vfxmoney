@@ -115,54 +115,54 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _pageContent(int i) {
-    return LayoutBuilder(
-      builder: (_, constraints) {
-        final usable = constraints.maxHeight;
-        final imgHeight = usable * .42; // 42 % of available height
-        final gapAfterImg = usable * .15; // 8 % gap
-        return Center(
-          child: SingleChildScrollView(
-            physics: const NeverScrollableScrollPhysics(),
+Widget _pageContent(int i) {
+  return LayoutBuilder(
+    builder: (_, constraints) {
+      return Column(
+        children: [
+          // TOP IMAGE SECTION (exact like your screenshot)
+          SizedBox(
+            height: constraints.maxHeight * 0.63,
+            width: double.infinity,
+            child: Image.asset(
+              _images[i],
+              fit: BoxFit.cover,    // FULL WIDTH, CROPPED EXACTLY LIKE DESIGN
+              alignment: Alignment.topCenter,
+            ),
+          ),
+
+          // SPACING SAME LIKE DESIGN (~40px gap)
+          const SizedBox(height: 90),
+
+          // TEXT SECTION
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                /* --------------- illustration --------------- */
-                Image.asset(_images[i], height: imgHeight, fit: BoxFit.contain),
-                SizedBox(height: gapAfterImg),
-
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Column(
-                    children: [
-                      /* --------------- title --------------- */
-                      AppText(
-                        _titles[i],
-                        textStyle: 'hb', // HubotSans
-                        fontSize: 24,
-                        color: AppColors.white,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 12),
-
-                      /* --------------- body --------------- */
-                      AppText(
-                        _bodies[i],
-                        textStyle: 'jb', // JetBrainsMono
-                        fontSize: 11,
-                        color: AppColors.white,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
+                AppText(
+                  _titles[i],
+                  textStyle: 'hb',
+                  fontSize: 24,
+                  color: AppColors.white,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                AppText(
+                  _bodies[i],
+                  textStyle: 'jb',
+                  fontSize: 11,
+                  color: AppColors.white,
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
           ),
-        );
-      },
-    );
-  }
+        ],
+      );
+    },
+  );
+}
+
 }
 
 /* -------------------- dots indicator -------------------- */
