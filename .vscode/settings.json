@@ -1,4 +1,5 @@
 {
   "dart.flutterSdkPath": ".fvm/versions/stable",
-  "java.configuration.updateBuildConfiguration": "interactive"
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "cmake.sourceDirectory": "C:/SM_SHAH/vfxmoney/linux"
 }
