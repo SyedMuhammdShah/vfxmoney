@@ -3,6 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vfxmoney/core/constants/app_icons.dart';
+import 'package:vfxmoney/features/dashboard/presentation/widgets/create_card_widget.dart';
+import 'package:vfxmoney/features/depositAndWithdraw/widgets/card_option_widget.dart';
+import 'package:vfxmoney/features/depositAndWithdraw/widgets/deposit_option_widget.dart';
+import 'package:vfxmoney/features/depositAndWithdraw/widgets/withdraw_option_widget.dart';
+import 'package:vfxmoney/shared/popUp/create_card_popup.dart';
 
 class CustomBottomBar extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -30,13 +35,49 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
 
   void _onAddTap() {
     HapticFeedback.mediumImpact();
-    // TODO: open your add sheet / page
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).cardColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DepositOptionWidget(
+                onTap: () {
+                  Navigator.pop(context);
+                  // Navigate to deposit screen
+                },
+              ),
+
+              WithdrawOptionWidget(
+                onTap: () {
+                  Navigator.pop(context);
+                  // Navigate to withdraw screen
+                },
+              ),
+
+              CreateCardOptionWidget(
+                onTap: () {
+                  CreateCardPopup.show(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   final List<Map<String, dynamic>> items = [
     {"image": AppIcons.logo, "label": "Home"},
     {"image": AppIcons.myCard, "label": "My Cards"},
-    {"image": AppIcons.myCard, "label": ""},
+    {"image": AppIcons.plusIcon, "label": ""},
     {"image": AppIcons.transaction, "label": "Transactions"},
     {"image": AppIcons.profile, "label": "Profile"},
   ];

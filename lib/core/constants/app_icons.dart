@@ -9,9 +9,7 @@ class AppIcons {
   static const String creditCard = "assets/icons/credit_card.png";
   static const String onboardImage = "assets/images/onboard_image.png";
   static const String locationIcon = "assets/icons/location_icon.png";
-
-
-
+  static const String plusIcon = "assets/images/plus.png";
 
   static const String lockIcon = "assets/icons/lock_icon.png";
   static const String chatIcon = "assets/icons/chat_icon.png";

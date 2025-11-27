@@ -1,9 +1,12 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:vfxmoney/features/dashboard/presentation/widgets/create_card_widget.dart';
 import 'package:vfxmoney/features/dashboard/presentation/widgets/flip_card_widget.dart';
 import 'package:vfxmoney/shared/model/form_field_Model.dart';
+import 'package:vfxmoney/shared/popUp/create_card_popup.dart';
 import 'package:vfxmoney/shared/widgets/app_text.dart';
 import 'package:vfxmoney/shared/widgets/custom_dynamic_for_popup.dart';
+import 'package:vfxmoney/shared/widgets/push_button.dart';
 
 class VortexCardWalletWidget extends StatefulWidget {
   const VortexCardWalletWidget({Key? key}) : super(key: key);
@@ -193,7 +196,7 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
                   color: Theme.of(context).colorScheme.secondary,
                   isActive: false,
                   onTap: () {
-                    _showCreateCardPopup(context);
+                    CreateCardPopup();
                   },
                 ),
                 _buildActionButton(
@@ -337,33 +340,6 @@ void _showUnloadMoneyPopup(BuildContext context) {
     buttonText: 'Confirm Unload Money',
     onSubmit: (values) {
       print('Unload Money Values: $values');
-    },
-  );
-}
-
-void _showCreateCardPopup(BuildContext context) {
-  DynamicFormPopup.show(
-    context: context,
-    title: 'Create New Card',
-    subtitle: 'Enter details for your new virtual card.',
-    fields: [
-      FormFieldData(
-        label: 'Card Name',
-        labelSuffix: '(Alias)',
-        hintText: 'Alias',
-        keyboardType: TextInputType.text,
-      ),
-      FormFieldData(
-        label: 'Card Type',
-        hintText: 'Virtual Card',
-        isDropdown: true,
-        dropdownItems: ['Virtual Card', 'Physical Card'],
-      ),
-    ],
-    footerText: 'Fees: Physical Card (Fee 100\$) or Virtual Card Fee 50%',
-    buttonText: 'Create Card',
-    onSubmit: (values) {
-      print('Create Card Values: $values');
     },
   );
 }
