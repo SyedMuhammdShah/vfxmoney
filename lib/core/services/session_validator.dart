@@ -17,7 +17,7 @@ class UserSessionManager {
 
     if (context.mounted) {
       if (token == null || token.isEmpty) {
-        _go(context, Routes.onboarding.name);
+        _go(context, Routes.dashboard.name);
         return;
       }
 
