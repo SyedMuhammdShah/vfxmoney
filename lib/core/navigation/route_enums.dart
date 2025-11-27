@@ -21,6 +21,7 @@ enum Routes {
 
   // Settings
   settings('/settings'),
+  feesAndLimit('/feesAndLimit'),
 
   // Profile
   userProfile('/userProfile'),

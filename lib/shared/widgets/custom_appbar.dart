@@ -59,7 +59,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             padding: EdgeInsets.zero,
             icon: Icon(Icons.notifications_none, color: iconColor, size: 17),
             onPressed: () {
-              /* TODO */
+              context.pushNamed(Routes.notification.name);
             },
           ),
           Positioned(

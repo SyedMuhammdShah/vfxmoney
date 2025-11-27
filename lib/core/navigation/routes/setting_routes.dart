@@ -6,4 +6,10 @@ final settingRoutes = [
     path: "/settings",
     builder: (context, state) => const SettingsScreen(),
   ),
+
+  GoRoute(
+    name: "feesAndLimit",
+    path: "/feesAndLimit",
+    builder: (context, state) => const FeesAndLimitScreen(),
+  ),
 ];
