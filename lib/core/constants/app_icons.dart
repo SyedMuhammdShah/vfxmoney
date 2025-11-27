@@ -1,11 +1,18 @@
 class AppIcons {
   static const String logo = "assets/images/app_logo.png";
+  static const String myCard = "assets/images/mycard.png";
+  static const String profile = "assets/images/profile.png";
+  static const String transaction = "assets/images/transactions.png";
   static const String google = "assets/icons/google_logo.png";
   static const String apple = "assets/icons/apple_logo.png";
   static const String splashBG = "assets/images/vortex.gif";
   static const String creditCard = "assets/icons/credit_card.png";
   static const String onboardImage = "assets/images/onboard_image.png";
   static const String locationIcon = "assets/icons/location_icon.png";
+
+
+
+
   static const String lockIcon = "assets/icons/lock_icon.png";
   static const String chatIcon = "assets/icons/chat_icon.png";
 
@@ -27,7 +34,6 @@ class AppIcons {
   static const String home = "assets/icons/home.svg";
   static const String order = "assets/icons/order.svg";
   static const String chat = "assets/icons/chatIcon.svg";
-  static const String profile = "assets/icons/profile.svg";
   static const String pdfIcon = "assets/icons/pdfIcon.png";
   static const String sendMessage = "assets/icons/sendMessageIcon.svg";
   static const String paymentIcon = "assets/icons/paymentIcon.svg";

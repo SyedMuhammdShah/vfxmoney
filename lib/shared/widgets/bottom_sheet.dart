@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vfxmoney/core/constants/app_icons.dart';
 
 class CustomBottomBar extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -33,11 +34,11 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
   }
 
   final List<Map<String, dynamic>> items = [
-    {"icon": Icons.check_circle, "label": "Home"},
-    {"icon": Icons.credit_card, "label": "My Cards"},
-    {"icon": Icons.add, "label": ""},
-    {"icon": Icons.history, "label": "Transactions"},
-    {"icon": Icons.person, "label": "Profile"},
+    {"image": AppIcons.logo, "label": "Home"},
+    {"image": AppIcons.myCard, "label": "My Cards"},
+    {"image": AppIcons.myCard, "label": ""},
+    {"image": AppIcons.transaction, "label": "Transactions"},
+    {"image": AppIcons.profile, "label": "Profile"},
   ];
 
   @override
@@ -83,10 +84,12 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
             onTap: _tap,
             items: items
                 .map(
-                  (e) => Icon(
-                    e["icon"],
-                    color: Colors.transparent, // Keep icons transparent
-                    size: 24,
+                  (e) => Image.asset(
+                    e["image"],
+                    color: Colors.transparent,
+                    // Apply reduced size for AppIcons.logo here too
+                    width: e["image"] == AppIcons.logo ? 10 : 10,
+                    height: e["image"] == AppIcons.logo ? 10 : 10,
                   ),
                 )
                 .toList(),
@@ -101,7 +104,9 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate(items.length, (index) {
                 final bool isActive = currentIndex == index;
-                final double iconSize = index == 2 ? 30 : 24; // Larger add icon
+                // Reduced size only for AppIcons.logo (index 0)
+                final bool isLogo = items[index]["image"] == AppIcons.logo;
+                final double iconSize = index == 2 ? 20 : (isLogo ? 20 : 20);
 
                 return Expanded(
                   child: GestureDetector(
@@ -122,37 +127,38 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
                                 color: activeBackgroundColor,
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: Icon(
-                                items[index]["icon"],
-                                size: iconSize,
+                              child: Image.asset(
+                                items[index]["image"],
+                                width: iconSize,
+                                height: iconSize,
                                 color: activeIconColor,
                               ),
                             )
                           else if (index == 2)
-                            // Special styling for add button
                             Container(
                               width: 50,
                               height: 50,
                               decoration: BoxDecoration(
-                                color: activeIconColor, // Green Velvet
+                                color: activeIconColor,
                                 borderRadius: BorderRadius.circular(25),
                               ),
-                              child: Icon(
-                                items[index]["icon"],
-                                size: iconSize,
+                              child: Image.asset(
+                                items[index]["image"],
+                                width: iconSize,
+                                height: iconSize,
                                 color: addButtonIconColor,
                               ),
                             )
                           else
-                            Icon(
-                              items[index]["icon"],
-                              size: iconSize,
+                            Image.asset(
+                              items[index]["image"],
+                              width: iconSize,
+                              height: iconSize,
                               color: inactiveIconColor,
                             ),
 
                           if (index != 2) const SizedBox(height: 4),
 
-                          // Labels (hidden for center button)
                           if (index != 2)
                             Text(
                               items[index]["label"],

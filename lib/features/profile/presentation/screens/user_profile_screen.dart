@@ -19,16 +19,15 @@ class UserProfileScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 32),
-
               /// Profile header (Image + Name + Email)
               const ProfileHeader(
-                imagePath: "https://img.icons8.com/?size=128&id=tZuAOUGm9AuS&format=png",
+                imagePath:
+                    "https://img.icons8.com/?size=128&id=tZuAOUGm9AuS&format=png",
                 name: "Jacob Jones",
                 email: "testing547@gmail.com",
               ),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 10),
 
               /// Divider (thin like in screenshot)
               Container(height: 0.6, color: Colors.white.withOpacity(0.15)),
