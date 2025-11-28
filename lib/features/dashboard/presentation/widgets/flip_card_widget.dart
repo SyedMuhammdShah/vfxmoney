@@ -1,8 +1,8 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:vfxmoney/features/dashboard/presentation/widgets/card_widget.dart';
 
+// Updated FlippableCard widget that uses images
 class FlippableCard extends StatefulWidget {
   final CardData cardData;
 
@@ -16,7 +16,7 @@ class _FlippableCardState extends State<FlippableCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-  bool _showFront = true;
+  bool _isFront = true;
 
   @override
   void initState() {
@@ -38,13 +38,13 @@ class _FlippableCardState extends State<FlippableCard>
   }
 
   void _flipCard() {
-    if (_showFront) {
+    if (_isFront) {
       _controller.forward();
     } else {
       _controller.reverse();
     }
     setState(() {
-      _showFront = !_showFront;
+      _isFront = !_isFront;
     });
   }
 
@@ -56,18 +56,18 @@ class _FlippableCardState extends State<FlippableCard>
         animation: _animation,
         builder: (context, child) {
           final angle = _animation.value * math.pi;
-          final transform = Matrix4.identity()
-            ..setEntry(3, 2, 0.001)
-            ..rotateY(angle);
+          final isFrontVisible = angle < math.pi / 2;
 
           return Transform(
-            transform: transform,
             alignment: Alignment.center,
-            child: angle < math.pi / 2
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.001)
+              ..rotateY(angle),
+            child: isFrontVisible
                 ? _buildFrontCard()
                 : Transform(
-                    transform: Matrix4.identity()..rotateY(math.pi),
                     alignment: Alignment.center,
+                    transform: Matrix4.identity()..rotateY(math.pi),
                     child: _buildBackCard(),
                   ),
           );
@@ -78,284 +78,186 @@ class _FlippableCardState extends State<FlippableCard>
 
   Widget _buildFrontCard() {
     return Container(
+      height: 200,
+      width: double.infinity,
+      constraints: BoxConstraints(maxWidth: 350),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16), // Slightly smaller radius
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF5A8B6F), Color(0xFF3D6B54), Color(0xFF2D5441)],
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned.fill(child: CustomPaint(painter: CardPatternPainter())),
-          Padding(
-            padding: const EdgeInsets.all(18), // Reduced padding
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top Row - Made more compact
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 40, // Reduced from 50
-                          height: 30, // Reduced from 38
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFD4AF37),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 3, // Reduced
-                                margin: const EdgeInsets.only(
-                                  top: 6,
-                                ), // Reduced
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFB8941F),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Container(
-                                height: 16, // Reduced from 20
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 5, // Reduced
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFB8941F),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 8), // Reduced
-                        const Icon(
-                          Icons.contactless,
-                          color: Colors.white70,
-                          size: 22, // Reduced from 28
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: const [
-                        Icon(
-                          Icons.check_circle,
-                          color: Color(0xFF4CAF50),
-                          size: 16, // Reduced from 20
-                        ),
-                        SizedBox(width: 6), // Reduced
-                        Text(
-                          'VORTEX',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16, // Reduced from 20
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2, // Reduced
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                const Icon(
-                  Icons.trending_up,
-                  color: Color(0xFF4CAF50),
-                  size: 60, // Reduced from 80
-                ),
-                const Spacer(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                      width: 28, // Reduced from 36
-                      height: 28, // Reduced from 36
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFEB001B),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    Transform.translate(
-                      offset: const Offset(-10, 0), // Reduced offset
-                      child: Container(
-                        width: 28, // Reduced from 36
-                        height: 28, // Reduced from 36
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFF79E1B),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2), // Reduced
-                const Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    'mastercard',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12, // Reduced from 14
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Image.asset(
+          'assets/images/card_front.png', // Image 2 - VORTEX Premium with VISA
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // Fallback gradient if image not found
+            return Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF1a1a2e), Color(0xFF16213e)],
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  'Card Front Image Not Found\nAdd: assets/images/card_front.png',
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
 
   Widget _buildBackCard() {
     return Container(
+      height: 200,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16), // Reduced from 20
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF3D6B54), Color(0xFF2D5441), Color(0xFF1E3A2C)],
-        ),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 20), // Reduced from 30
-          Container(height: 40, color: Colors.black), // Reduced from 50
-          const SizedBox(height: 15), // Reduced from 20
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18), // Reduced
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 32, // Reduced from 40
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                    ), // Reduced
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          'CVV: 123',
-                          style: TextStyle(
-                            color: Colors.grey.shade800,
-                            fontSize: 11, // Reduced
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 15), // Reduced from 20
-                Text(
-                  widget.cardData.cardNumber,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16, // Reduced from 18
-                    letterSpacing: 1.5, // Reduced
-                  ),
-                ),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Card Holder',
-                          style: TextStyle(
-                            color: Colors.grey.shade400,
-                            fontSize: 9, // Reduced
-                          ),
-                        ),
-                        const SizedBox(height: 3), // Reduced
-                        Text(
-                          widget.cardData.holderName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12, // Reduced from 14
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Expires',
-                          style: TextStyle(
-                            color: Colors.grey.shade400,
-                            fontSize: 9, // Reduced
-                          ),
-                        ),
-                        const SizedBox(height: 3), // Reduced
-                        Text(
-                          widget.cardData.expiryDate,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12, // Reduced from 14
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Background Image - Image 1 (the one with VORTEX FX header)
+            Image.asset(
+              'assets/images/card_back.png',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF1a1a2e), Color(0xFF16213e)],
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Card Back Image Not Found\nAdd: assets/images/card_back.png',
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              },
+            ),
+            // Overlay dynamic card details on the image
+            Positioned.fill(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SizedBox(height: 25),
+                    // Card Number
+                    Text(
+                      'NUMBER',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 9,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    Text(
+                      widget.cardData.cardNumber,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    // Date and CVV
+                    Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'DATE',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 9,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              widget.cardData.expiryDate,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(width: 50),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'CVV',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 9,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              '000',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    //SizedBox(height: 10),
+                    // Cardholder Name
+                    Text(
+                      widget.cardData.holderName,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
-}
-
-class CardPatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withOpacity(0.05)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-
-    for (double i = 0; i < size.width; i += 20) {
-      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
-    }
-
-    for (double i = 0; i < size.height; i += 20) {
-      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
-    }
-
-    final chartPaint = Paint()
-      ..color = const Color(0xFF4CAF50).withOpacity(0.3)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    final path = Path();
-    path.moveTo(40, size.height * 0.6); // Adjusted for smaller card
-    path.lineTo(80, size.height * 0.4);
-    path.lineTo(120, size.height * 0.5);
-    path.lineTo(160, size.height * 0.3);
-    path.lineTo(200, size.height * 0.45);
-    path.lineTo(240, size.height * 0.25);
-
-    canvas.drawPath(path, chartPaint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

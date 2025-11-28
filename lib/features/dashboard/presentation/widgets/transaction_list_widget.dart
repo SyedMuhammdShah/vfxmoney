@@ -54,11 +54,7 @@ class _FilterTabs extends StatefulWidget {
 class _FilterTabsState extends State<_FilterTabs> {
   int _selectedIndex = 0;
 
-  final List<String> _tabs = [
-    'All Transaction',
-    'Load Transaction',
-    'Unloads Transaction',
-  ];
+  final List<String> _tabs = ['Transaction', 'Card Transaction'];
 
   @override
   Widget build(BuildContext context) {

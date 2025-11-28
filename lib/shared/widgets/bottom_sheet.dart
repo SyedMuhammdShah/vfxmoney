@@ -7,7 +7,6 @@ import 'package:vfxmoney/features/dashboard/presentation/widgets/create_card_wid
 import 'package:vfxmoney/features/depositAndWithdraw/widgets/card_option_widget.dart';
 import 'package:vfxmoney/features/depositAndWithdraw/widgets/deposit_option_widget.dart';
 import 'package:vfxmoney/features/depositAndWithdraw/widgets/withdraw_option_widget.dart';
-import 'package:vfxmoney/shared/popUp/create_card_popup.dart';
 
 class CustomBottomBar extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -51,7 +50,6 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
               DepositOptionWidget(
                 onTap: () {
                   Navigator.pop(context);
-                  // Navigate to deposit screen
                 },
               ),
 
@@ -64,6 +62,8 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
 
               CreateCardOptionWidget(
                 onTap: () {
+                  Navigator.pop(context);
+
                   CreateCardPopup.show(context);
                 },
               ),
