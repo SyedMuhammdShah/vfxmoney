@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vfxmoney/core/constants/app_icons.dart';
-import 'package:vfxmoney/features/dashboard/presentation/widgets/create_card_widget.dart';
 import 'package:vfxmoney/features/depositAndWithdraw/widgets/card_option_widget.dart';
 import 'package:vfxmoney/features/depositAndWithdraw/widgets/deposit_option_widget.dart';
 import 'package:vfxmoney/features/depositAndWithdraw/widgets/withdraw_option_widget.dart';
+import 'package:vfxmoney/shared/popUp/create_card_popup.dart';
+import 'package:vfxmoney/shared/popUp/load_money_popup.dart';
+import 'package:vfxmoney/shared/popUp/unload_money_popup.dart';
 
 class CustomBottomBar extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -38,38 +40,13 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Theme.of(context).cardColor,
+      isScrollControlled: true, // Added for responsiveness
+      useSafeArea: true, // Added for better mobile support
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DepositOptionWidget(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-
-              WithdrawOptionWidget(
-                onTap: () {
-                  Navigator.pop(context);
-                  // Navigate to withdraw screen
-                },
-              ),
-
-              CreateCardOptionWidget(
-                onTap: () {
-                  Navigator.pop(context);
-
-                  CreateCardPopup.show(context);
-                },
-              ),
-            ],
-          ),
-        );
+        return ResponsiveBottomSheetContent(); // Extracted to separate widget for better organization
       },
     );
   }
@@ -135,10 +112,9 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
                 )
                 .toList(),
           ),
-
           /* -----------------------------------------
-           * Custom positioned icons with proper alignment
-           * ----------------------------------------- */
+ * Custom positioned icons with proper alignment
+ * ----------------------------------------- */
           Positioned.fill(
             bottom: 10,
             child: Row(
@@ -162,16 +138,26 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
                           // Add background circle for active tab
                           if (isActive && index != 2)
                             Container(
-                              width: 40,
-                              height: 40,
+                              // CHANGE THESE LINES - Reduce size only when Home is active (index 0)
+                              width: index == 0
+                                  ? 36
+                                  : 40, // Reduced from 40 to 36 for active Home
+                              height: index == 0
+                                  ? 36
+                                  : 40, // Reduced from 40 to 36 for active Home
                               decoration: BoxDecoration(
                                 color: activeBackgroundColor,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Image.asset(
                                 items[index]["image"],
-                                width: iconSize,
-                                height: iconSize,
+                                // CHANGE THIS LINE - Reduce icon size only when Home is active
+                                width: index == 0
+                                    ? 16
+                                    : 10, // Reduced from 20 to 16 for active Home
+                                height: index == 0
+                                    ? 16
+                                    : 10, // Reduced from 20 to 16 for active Home
                                 color: activeIconColor,
                               ),
                             )
@@ -220,6 +206,85 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
               }),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// Extracted responsive bottom sheet content widget
+class ResponsiveBottomSheetContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final bottomPadding = mediaQuery.viewInsets.bottom;
+    final screenHeight = mediaQuery.size.height;
+
+    // Calculate dynamic padding based on screen size
+    final double verticalPadding = screenHeight < 700 ? 8.0 : 16.0;
+    final double horizontalPadding = screenHeight < 700 ? 16.0 : 24.0;
+
+    return AnimatedPadding(
+      padding: EdgeInsets.only(
+        bottom: bottomPadding + mediaQuery.padding.bottom,
+        left: horizontalPadding,
+        right: horizontalPadding,
+        top: verticalPadding,
+      ),
+      duration: const Duration(milliseconds: 100),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Drag handle for better UX
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade400,
+              borderRadius: BorderRadius.circular(2),
+            ),
+            margin: const EdgeInsets.only(bottom: 8),
+          ),
+
+          // Responsive content
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final bool isSmallScreen = constraints.maxWidth < 360;
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DepositOptionWidget(
+                    onTap: () {
+                      Navigator.pop(context);
+                      LoadMoneyPopup.show(context);
+                    },
+                  ),
+
+                  SizedBox(height: isSmallScreen ? 8 : 12),
+
+                  WithdrawOptionWidget(
+                    onTap: () {
+                      Navigator.pop(context);
+                      UnloadMoneyPopup.show(context);
+                    },
+                  ),
+
+                  SizedBox(height: isSmallScreen ? 8 : 12),
+
+                  CreateCardOptionWidget(
+                    onTap: () {
+                      Navigator.pop(context);
+                      CreateCardPopup.show(context);
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+
+          // Extra bottom padding for devices with notch/home indicator
+          SizedBox(height: mediaQuery.padding.bottom > 0 ? 30 : 50),
         ],
       ),
     );

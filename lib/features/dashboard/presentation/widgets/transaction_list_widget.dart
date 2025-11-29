@@ -14,31 +14,25 @@ class TransactionListFullScreen extends StatelessWidget {
         ? const Color(0xFF2A2A2A)
         : Colors.grey.shade300;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            /* ------------ Filter Tabs ------------ */
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-              child: _FilterTabs(),
-            ),
-            /* ------------ list ------------ */
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _TransactionTable(
-                  transactions: _dummyTransactions,
-                  dividerColor: dividerColor,
-                  iconBorderColor: iconBorderColor,
-                ),
-              ),
-            ),
-          ],
+    return Column(
+      children: [
+        /* ------------ Filter Tabs ------------ */
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: _FilterTabs(),
         ),
-      ),
+        /* ------------ list ------------ */
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _TransactionTable(
+              transactions: _dummyTransactions,
+              dividerColor: dividerColor,
+              iconBorderColor: iconBorderColor,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -322,6 +316,76 @@ final List<Transaction> _dummyTransactions = [
     type: TransactionType.unload,
   ),
   Transaction(
+    title: 'Unload Money To Beetoo',
+    date: '8 Jan 2025 2:53 PM',
+    amount: '+\$100.00',
+    status: TransactionStatus.approved,
+    type: TransactionType.unload,
+  ),
+    Transaction(
+    title: 'Unload Money To Beetoo',
+    date: '8 Jan 2025 2:53 PM',
+    amount: '+\$100.00',
+    status: TransactionStatus.approved,
+    type: TransactionType.unload,
+  ),
+    Transaction(
+    title: 'Unload Money To Beetoo',
+    date: '8 Jan 2025 2:53 PM',
+    amount: '+\$100.00',
+    status: TransactionStatus.approved,
+    type: TransactionType.unload,
+  ),
+    Transaction(
+    title: 'Unload Money To Beetoo',
+    date: '8 Jan 2025 2:53 PM',
+    amount: '+\$100.00',
+    status: TransactionStatus.approved,
+    type: TransactionType.unload,
+  ),
+    Transaction(
+    title: 'Unload Money To Beetoo',
+    date: '8 Jan 2025 2:53 PM',
+    amount: '+\$100.00',
+    status: TransactionStatus.approved,
+    type: TransactionType.unload,
+  ),
+    Transaction(
+    title: 'Unload Money To Beetoo',
+    date: '8 Jan 2025 2:53 PM',
+    amount: '+\$100.00',
+    status: TransactionStatus.approved,
+    type: TransactionType.unload,
+  ),
+    Transaction(
+    title: 'Unload Money To Beetoo',
+    date: '8 Jan 2025 2:53 PM',
+    amount: '+\$100.00',
+    status: TransactionStatus.approved,
+    type: TransactionType.unload,
+  ),
+    Transaction(
+    title: 'Unload Money To Beetoo',
+    date: '8 Jan 2025 2:53 PM',
+    amount: '+\$100.00',
+    status: TransactionStatus.approved,
+    type: TransactionType.unload,
+  ),
+    Transaction(
+    title: 'Unload Money To Beetoo',
+    date: '8 Jan 2025 2:53 PM',
+    amount: '+\$100.00',
+    status: TransactionStatus.approved,
+    type: TransactionType.unload,
+  ),
+    Transaction(
+    title: 'Unload Money To Beetoo',
+    date: '8 Jan 2025 2:53 PM',
+    amount: '+\$100.00',
+    status: TransactionStatus.approved,
+    type: TransactionType.unload,
+  ),
+    Transaction(
     title: 'Unload Money To Beetoo',
     date: '8 Jan 2025 2:53 PM',
     amount: '+\$100.00',

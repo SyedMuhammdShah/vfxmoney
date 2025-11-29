@@ -14,18 +14,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: 'Transactions', implyLeading: true),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 480, // Adjust height based on your needs
-              child: TransactionListFullScreen(),
-            ),
-          ],
-        ),
-      ),
+      body: const TransactionListFullScreen(), // Remove SizedBox and use directly
     );
   }
 }

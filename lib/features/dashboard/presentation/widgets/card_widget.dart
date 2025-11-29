@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:vfxmoney/features/dashboard/presentation/widgets/create_card_widget.dart';
 import 'package:vfxmoney/features/dashboard/presentation/widgets/flip_card_widget.dart';
 import 'package:vfxmoney/shared/model/form_field_Model.dart';
+import 'package:vfxmoney/shared/popUp/create_card_popup.dart';
+import 'package:vfxmoney/shared/popUp/load_money_popup.dart';
+import 'package:vfxmoney/shared/popUp/unload_money_popup.dart';
 import 'package:vfxmoney/shared/widgets/app_text.dart';
 import 'package:vfxmoney/shared/widgets/custom_dynamic_for_popup.dart';
 
 class VortexCardWalletWidget extends StatefulWidget {
   const VortexCardWalletWidget({Key? key}) : super(key: key);
 
+  /// 🔥 Global consistent card height across all screens
+  static const double cardHeight = 220; // Increased from 180
+
   @override
   State<VortexCardWalletWidget> createState() => _VortexCardWalletWidgetState();
 }
 
 class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
-  final PageController _pageController = PageController(viewportFraction: 0.9);
+  final PageController _pageController = PageController(viewportFraction: 1.0);
   int _currentPage = 0;
 
   final List<CardData> cards = [
@@ -41,11 +46,9 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
   void initState() {
     super.initState();
     _pageController.addListener(() {
-      int next = _pageController.page!.round();
-      if (_currentPage != next) {
-        setState(() {
-          _currentPage = next;
-        });
+      int newIndex = _pageController.page!.round();
+      if (_currentPage != newIndex) {
+        setState(() => _currentPage = newIndex);
       }
     });
   }
@@ -61,11 +64,11 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // Card Carousel - Reduced height from 240 to 180
           SizedBox(
-            height: 180, // Reduced from 240
+            height: VortexCardWalletWidget.cardHeight,
+            width: double.infinity,
             child: PageView.builder(
-              controller: _pageController,
+              controller: PageController(viewportFraction: 1.0), // FIX HERE
               itemCount: cards.length,
               itemBuilder: (context, index) {
                 return Padding(
@@ -75,13 +78,16 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
               },
             ),
           ),
+
           const SizedBox(height: 20),
-          // Page Indicator
+
+          // 🔸 Page Indicator
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
               cards.length,
-              (index) => Container(
+              (index) => AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 width: _currentPage == index ? 24 : 8,
                 height: 8,
@@ -94,11 +100,13 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
               ),
             ),
           ),
+
           const SizedBox(height: 15),
-          // Balance Section
+
+          // 🔥 Balance Card (Reusable everywhere, consistent UI)
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 24),
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
@@ -109,6 +117,7 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
             ),
             child: Column(
               children: [
+                // Top Row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -116,10 +125,9 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
                       children: [
                         AppText(
                           'Available Balance',
-                          fontSize: 10,
+                          fontSize: 11,
                           color: Theme.of(context).colorScheme.secondary,
                           textStyle: 'jb',
-                          w: FontWeight.w400,
                         ),
                         const SizedBox(width: 8),
                         Icon(
@@ -133,10 +141,9 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
                       children: [
                         AppText(
                           'View More',
-                          fontSize: 8,
+                          fontSize: 9,
                           color: Theme.of(context).colorScheme.secondary,
                           textStyle: 'jb',
-                          w: FontWeight.w400,
                         ),
                         const SizedBox(width: 4),
                         Icon(
@@ -148,12 +155,14 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 5),
+
+                const SizedBox(height: 8),
+
                 Align(
                   alignment: Alignment.centerLeft,
                   child: AppText(
                     cards[_currentPage].balance,
-                    fontSize: 15,
+                    fontSize: 18,
                     color: Theme.of(context).colorScheme.onSurface,
                     textStyle: 'hb',
                     w: FontWeight.bold,
@@ -162,8 +171,10 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
               ],
             ),
           ),
+
           const SizedBox(height: 15),
-          // Action Buttons
+
+          // 🔥 Action Buttons (consistent across screens)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
@@ -172,29 +183,23 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
                 _buildActionButton(
                   icon: Icons.add_card_outlined,
                   label: 'Load',
-                  color: Theme.of(context).primaryColor, // Green Velvet
+                  color: Theme.of(context).primaryColor,
                   isActive: true,
-                  onTap: () {
-                    _showLoadMoneyPopup(context);
-                  },
+                  onTap: () => LoadMoneyPopup.show(context),
                 ),
                 _buildActionButton(
                   icon: Icons.account_balance_wallet_outlined,
                   label: 'Unload',
                   color: Theme.of(context).colorScheme.secondary,
                   isActive: false,
-                  onTap: () {
-                    _showUnloadMoneyPopup(context);
-                  },
+                  onTap: () => UnloadMoneyPopup.show(context),
                 ),
                 _buildActionButton(
                   icon: Icons.receipt_long_outlined,
                   label: 'Transaction',
                   color: Theme.of(context).colorScheme.secondary,
                   isActive: false,
-                  onTap: () {
-                    CreateCardPopup();
-                  },
+                  onTap: () => CreateCardPopup.show(context),
                 ),
                 _buildActionButton(
                   icon: Icons.lock_outline,
@@ -215,23 +220,21 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
     required String label,
     required Color color,
     required bool isActive,
-    VoidCallback? onTap, // <-- new param
+    VoidCallback? onTap,
   }) {
     return InkWell(
-      // makes it clickable
       onTap: onTap,
       borderRadius: BorderRadius.circular(25),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 50,
-            height: 50,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               color: isActive
-                  ? color.withOpacity(0.2)
+                  ? color.withOpacity(0.20)
                   : Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(25),
+              borderRadius: BorderRadius.circular(26),
               border: Border.all(
                 color: isActive ? color : Colors.transparent,
                 width: 1.5,
@@ -240,7 +243,6 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
             child: Icon(
               icon,
               color: isActive ? color : Theme.of(context).colorScheme.secondary,
-              size: 24,
             ),
           ),
           const SizedBox(height: 6),
@@ -249,7 +251,6 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
             fontSize: 10,
             color: isActive ? color : Theme.of(context).colorScheme.secondary,
             textStyle: 'jb',
-            w: FontWeight.w500,
           ),
         ],
       ),
@@ -271,72 +272,4 @@ class CardData {
     required this.holderName,
     required this.expiryDate,
   });
-}
-
-void _showLoadMoneyPopup(BuildContext context) {
-  DynamicFormPopup.show(
-    context: context,
-    title: 'Load Money',
-    subtitle: 'Deposit your fund in your Card',
-    fields: [
-      FormFieldData(
-        label: 'Amount',
-        labelSuffix: '(USD)',
-        hintText: '\$500',
-        keyboardType: TextInputType.number,
-        prefixText: '\$',
-      ),
-      FormFieldData(
-        label: 'Payment Method',
-        hintText: 'Crypto',
-        isDropdown: true,
-        dropdownItems: ['Crypto', 'Bank Transfer', 'Credit Card'],
-      ),
-      FormFieldData(
-        label: 'Proof of Payment',
-        hintText: 'Screen Shoot',
-        isFilePicker: true,
-        helperText: 'Click here  this link preview image',
-        helperActionText: 'Click here',
-      ),
-    ],
-    buttonText: 'Confirm Load Money',
-    onSubmit: (values) {
-      print('Load Money Values: $values');
-    },
-  );
-}
-
-void _showUnloadMoneyPopup(BuildContext context) {
-  DynamicFormPopup.show(
-    context: context,
-    title: 'Unload Money',
-    subtitle: 'Enter the details to unload funds for\nCard **** **** **** 2375',
-    fields: [
-      FormFieldData(
-        label: 'Amount',
-        labelSuffix: '(USD)',
-        hintText: '\$500',
-        keyboardType: TextInputType.number,
-        prefixText: '\$',
-        isDropdown: true,
-      ),
-      FormFieldData(
-        label: 'Wallet Address',
-        labelSuffix: '(USD)',
-        hintText: '0Xabc123',
-        keyboardType: TextInputType.text,
-      ),
-      FormFieldData(
-        label: 'Blockchain',
-        hintText: 'Eg. Ethereum',
-        isDropdown: true,
-        dropdownItems: ['Ethereum', 'Bitcoin', 'Polygon', 'BSC'],
-      ),
-    ],
-    buttonText: 'Confirm Unload Money',
-    onSubmit: (values) {
-      print('Unload Money Values: $values');
-    },
-  );
 }
