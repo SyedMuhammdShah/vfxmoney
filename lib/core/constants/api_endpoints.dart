@@ -1,5 +1,5 @@
 //String baseUrl = 'https://api.rightawayapp.com';
-String baseUrl = 'https://toneless-aprioristically-sacha.ngrok-free.dev';
+String baseUrl = 'https://cardsandboxbackend.appollondigitals.com/api/request';
 
 class ApiEndpoints {
   static const String loginEndpoint = '/auth/resendLoginOTP';

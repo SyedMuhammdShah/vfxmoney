@@ -1,16 +1,14 @@
-import 'package:fpdart/fpdart.dart';
-import 'package:vfxmoney/core/errors/failure.dart';
-import 'package:vfxmoney/core/params/auth_params/login_params.dart';
-import 'package:vfxmoney/core/usecase/usecase.dart';
+
+import 'package:vfxmoney/core/params/auth_params/auth_params.dart';
+import 'package:vfxmoney/features/auth/domain/auth_entities/auth_user_entity.dart';
 import 'package:vfxmoney/features/auth/domain/auth_repositories/auth_repository.dart';
 
-class LoginUseCase implements UseCase<void, LoginParams> {
+class LoginUseCase {
   final AuthRepository repository;
 
-  LoginUseCase({required this.repository});
+  LoginUseCase(this.repository);
 
-  @override
-  Future<Either<Failure, void>> call(LoginParams params) {
+  Future<UserEntity> call(LoginParams params) {
     return repository.login(params);
   }
 }

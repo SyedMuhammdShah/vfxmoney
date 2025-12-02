@@ -19,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<AuthBloc>().add(LoadUserSessionEvent());
+    // context.read<AuthBloc>().add(LoadUserSessionEvent());
     _sessionManager.validateAndRedirect(context);
   }
 
@@ -36,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
               AppIcons.splashBG, // assets/gif/vortex.gif
               fit: BoxFit.fill,
             ),
-        
+
             /// Foreground content
             SafeArea(
               child: Column(

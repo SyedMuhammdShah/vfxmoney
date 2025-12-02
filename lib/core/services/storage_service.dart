@@ -8,9 +8,8 @@ import 'package:uuid/uuid.dart';
 
 class StorageService {
   final SharedPreferences _preferences;
-  final ValueNotifier<UserModel?> userNotifier = ValueNotifier<UserModel?>(
-    null,
-  );
+  final ValueNotifier<AuthUserModel?> userNotifier =
+      ValueNotifier<AuthUserModel?>(null);
 
   StorageService(this._preferences) {
     userNotifier.value = getUser;
@@ -49,25 +48,25 @@ class StorageService {
   Future<void> setUser(dynamic user) async {
     Map<String, dynamic> userMap;
 
-    if (user is UserModel) {
+    if (user is AuthUserModel) {
       userMap = user.toJson();
     } else if (user is Map<String, dynamic>) {
       userMap = user;
     } else {
       throw ArgumentError(
-        'Invalid user type — must be UserModel or Map<String, dynamic>',
+        'Invalid user type — must be AuthUserModel or Map<String, dynamic>',
       );
     }
 
     await _preferences.setString(_keyUser, jsonEncode(userMap));
-    userNotifier.value = UserModel.fromJson(userMap);
+    userNotifier.value = AuthUserModel.fromJson(userMap);
     if (kDebugMode) {
       print('✅ User saved: $userMap');
     }
   }
 
   // ✅ Get user
-  UserModel? get getUser {
+  AuthUserModel? get getUser {
     final data = _preferences.getString(_keyUser);
     if (data == null) return null;
 
@@ -79,7 +78,7 @@ class StorageService {
 
       if (userData == null) return null;
 
-      return UserModel.fromJson(userData);
+      return AuthUserModel.fromJson(userData);
     } catch (e, st) {
       if (kDebugMode) {
         print('❌ Error decoding user: $e\n$st');

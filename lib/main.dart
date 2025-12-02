@@ -7,7 +7,6 @@ import 'package:vfxmoney/core/constants/app_colors.dart';
 import 'package:vfxmoney/core/services/service_locator.dart';
 import 'package:vfxmoney/core/theme/app_theme.dart';
 import 'package:vfxmoney/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:vfxmoney/features/auth/presentation/bloc/delete_bloc/delete_account_bloc.dart';
 import 'package:vfxmoney/features/theme/bloc/theme_bloc.dart';
 import 'package:vfxmoney/features/theme/bloc/theme_state.dart';
 
@@ -30,10 +29,7 @@ Future<void> main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => locator<AuthBloc>(), lazy: true),
-        BlocProvider(
-          create: (context) => locator<DeleteAccountBloc>(),
-          lazy: true,
-        ),
+
         BlocProvider(create: (context) => locator<ThemeBloc>()), // NEW
       ],
       child: Stack(

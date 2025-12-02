@@ -73,4 +73,38 @@ class FormValidators {
 
     return null;
   }
+
+  // --- PASSWORD VALIDATOR ---
+  static String? validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password is required';
+    }
+
+    final password = value.trim();
+
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+
+    if (password.contains(' ')) {
+      return 'Password cannot contain spaces';
+    }
+
+    // Must contain at least 1 uppercase letter
+    if (!RegExp(r'[A-Z]').hasMatch(password)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+
+    // Must contain at least 1 lowercase letter
+    if (!RegExp(r'[a-z]').hasMatch(password)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+
+    // Must contain at least 1 digit
+    if (!RegExp(r'[0-9]').hasMatch(password)) {
+      return 'Password must contain at least one number';
+    }
+
+    return null; // valid
+  }
 }

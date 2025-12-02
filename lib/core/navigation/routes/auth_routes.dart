@@ -10,16 +10,7 @@ final authRoutes = [
     ),
     pageBuilder: GoTransitions.openUpwards.call,
   ),
-  GoRoute(
-    name: Routes.signUp.name,
-    path: Routes.signUp.path,
-    builder: (context, state) => const SignupScreen(),
-  ),
-  GoRoute(
-    name: Routes.otp.name,
-    path: Routes.otp.path,
-    builder: (context, state) => const OtpScreen(),
-  ),
+ 
   GoRoute(
     name: Routes.forgotPass.name,
     path: Routes.forgotPass.path,
@@ -30,12 +21,6 @@ final authRoutes = [
     path: Routes.changePass.path,
     builder: (context, state) => const ChangePassScreen(),
   ),
-  GoRoute(
-    name: Routes.verifyAccount.name,
-    path: Routes.verifyAccount.path,
-    builder: (context, state) => const VerifyAccountScreen(),
-  ),
-
   GoRoute(
     name: Routes.changePhoneNumberSuccess.name,
     path: Routes.changePhoneNumberSuccess.path,
@@ -96,17 +81,7 @@ final authRoutes = [
   //     return AddAddressScreen(isEdit: isEdit, existingAddress: existingAddress);
   //   },
   // ),
-  GoRoute(
-    name: Routes.deleteOtp.name,
-    path: Routes.deleteOtp.path,
-    builder: (context, state) => const DeleteOtpScreen(),
-  ),
 
-  GoRoute(
-    name: Routes.deleteAccount.name,
-    path: Routes.deleteAccount.path,
-    builder: (context, state) => const DeleteAccountScreen(),
-  ),
   GoRoute(
     name: Routes.loginSuccess.name,
     path: Routes.loginSuccess.path,
@@ -137,11 +112,7 @@ final authRoutes = [
       );
     },
   ),
-  GoRoute(
-    name: Routes.editProfile.name,
-    path: Routes.editProfile.path,
-    builder: (context, state) => const EditProfileScreen(),
-  ),
+
   GoRoute(
     name: Routes.onboarding.name,
     path: Routes.onboarding.path,

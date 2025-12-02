@@ -6,7 +6,7 @@ import 'package:vfxmoney/shared/widgets/input_field.dart';
 import 'package:vfxmoney/shared/widgets/push_button.dart';
 
 class LoginFormWidget extends StatefulWidget {
-  final VoidCallback onSubmit;
+  final void Function(String email, String password) onSubmit;
 
   const LoginFormWidget({super.key, required this.onSubmit});
 
@@ -29,7 +29,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
 
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
-      widget.onSubmit();
+      widget.onSubmit(_email.text.trim(), _password.text.trim());
     }
   }
 
@@ -55,7 +55,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
             hintText: 'Password',
             obscureText: _obscurePassword,
             isPassword: true,
-            validator: FormValidators.validatePhoneNumber,
+            validator: FormValidators.validatePassword,
             onToggleObscure: () {
               setState(() => _obscurePassword = !_obscurePassword);
             },
