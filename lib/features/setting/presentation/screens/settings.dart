@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vfxmoney/core/navigation/route_enums.dart';
+import 'package:vfxmoney/core/services/service_locator.dart';
+import 'package:vfxmoney/core/services/storage_service.dart';
 import 'package:vfxmoney/features/theme/bloc/theme_bloc.dart';
 import 'package:vfxmoney/features/theme/bloc/theme_event.dart';
 import 'package:vfxmoney/features/theme/bloc/theme_state.dart';
@@ -24,20 +26,16 @@ class SettingsScreen extends StatelessWidget {
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              // Theme Toggle Tile
+              // Theme Toggle
               _buildSettingsTile(
                 context,
                 icon: isDark ? Icons.dark_mode : Icons.light_mode,
                 title: isDark ? "Dark Mode" : "Light Mode",
-                trailing: BlocBuilder<ThemeBloc, ThemeState>(
-                  builder: (context, state) {
-                    return Switch(
-                      value: state.themeMode == ThemeMode.dark,
-                      activeColor: Theme.of(context).colorScheme.primary,
-                      onChanged: (_) {
-                        context.read<ThemeBloc>().add(ToggleThemeEvent());
-                      },
-                    );
+                trailing: Switch(
+                  value: isDark,
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  onChanged: (_) {
+                    context.read<ThemeBloc>().add(ToggleThemeEvent());
                   },
                 ),
               ),
@@ -55,15 +53,41 @@ class SettingsScreen extends StatelessWidget {
                   color: Theme.of(context).colorScheme.secondary,
                 ),
                 onTap: () {
-                  // TODO: Navigate to Fee and Limit screen
                   context.pushNamed(Routes.feesAndLimit.name);
                 },
+              ),
+
+              const SizedBox(height: 16),
+
+              // 🚪 LOGOUT BUTTON TILE
+              _buildSettingsTile(
+                context,
+                icon: Icons.logout_rounded,
+                title: "Logout",
+                trailing: Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                onTap: () => _handleLogout(context),
               ),
             ],
           ),
         );
       },
     );
+  }
+
+  void _handleLogout(BuildContext context) async {
+    final storage = locator<StorageService>();
+
+    /// Clear user session
+    await storage.clear();
+
+    /// Redirect to onboarding
+    if (context.mounted) {
+      context.goNamed(Routes.onboarding.name);
+    }
   }
 
   Widget _buildSettingsTile(
@@ -73,19 +97,19 @@ class SettingsScreen extends StatelessWidget {
     required Widget trailing,
     VoidCallback? onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-          width: 1,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+            width: 1,
+          ),
         ),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
         child: Row(
           children: [
             Container(
@@ -98,19 +122,26 @@ class SettingsScreen extends StatelessWidget {
               child: Icon(
                 icon,
                 size: 20,
-                color: Theme.of(context).colorScheme.primary,
+                color: title == "Logout"
+                    ? Theme.of(context).colorScheme.error
+                    : Theme.of(context).colorScheme.primary,
               ),
             ),
+
             const SizedBox(width: 16),
+
             Expanded(
               child: AppText(
                 title,
                 fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: title == "Logout"
+                    ? Theme.of(context).colorScheme.error
+                    : Theme.of(context).colorScheme.onSurface,
                 textStyle: 'hb',
                 w: FontWeight.w500,
               ),
             ),
+
             trailing,
           ],
         ),

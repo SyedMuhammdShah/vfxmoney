@@ -21,22 +21,58 @@ class VortexAuthScreen extends StatefulWidget {
   State<VortexAuthScreen> createState() => _VortexAuthScreenState();
 }
 
+// Replace your VortexAuthScreen state class with this version (only the state class shown)
 class _VortexAuthScreenState extends State<VortexAuthScreen> {
-  bool _isLogin = false;
+  // show login by default to simplify testing
+  bool _isLogin = true;
+  bool _isDialogShowing = false; // track loader dialog
 
-  /// This callback will be passed to LoginFormWidget.
-  /// Assumes LoginFormWidget calls onSubmit(email, password).
-  void _onLoginSubmit(String email, String password) {
-    // Dispatch login event to bloc
-    final bloc = context.read<AuthBloc>();
-    bloc.add(LoginRequested(email: email, password: password));
+  late final AuthBloc _authBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    // Create a single bloc instance for this screen (avoid calling locator repeatedly)
+    _authBloc = locator<AuthBloc>();
   }
 
-  /// When signup form submits — keep existing behavior (navigate or implement signup flow).
+  @override
+  void dispose() {
+    // If you created the bloc here, close it to release resources.
+    // If you're sharing this bloc higher in the widget tree (e.g., app-level),
+    // DO NOT close it here. Only close if you created it in initState as above.
+    _authBloc.close();
+    super.dispose();
+  }
+
+  void _onLoginSubmit(String email, String password) {
+    debugPrint('[UI] Dispatching LoginRequested for $email via _authBloc');
+    _authBloc.add(LoginRequested(email: email, password: password));
+  }
+
   void _onSignupSubmit() {
-    // placeholder: after signup you might want to navigate or dispatch signup event
-    // For now follow the previous behaviour:
-    context.pushNamed(Routes.dashboard.name);
+    context.goNamed(Routes.dashboard.name);
+  }
+
+  void _showLoader() {
+    if (_isDialogShowing) return;
+    _isDialogShowing = true;
+    showDialog(
+      context: context,
+      useRootNavigator: true,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  void _hideLoader() {
+    if (!_isDialogShowing) return;
+    _isDialogShowing = false;
+    try {
+      if (Navigator.of(context, rootNavigator: true).canPop()) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+    } catch (_) {}
   }
 
   @override
@@ -45,138 +81,118 @@ class _VortexAuthScreenState extends State<VortexAuthScreen> {
     final Color textColor = Theme.of(context).colorScheme.onSurface;
     final Color secondaryTextColor = Theme.of(context).colorScheme.secondary;
 
-    return BlocProvider<AuthBloc>(
-      create: (_) => locator<AuthBloc>(),
+    // Provide the same bloc instance we created in initState
+    return BlocProvider<AuthBloc>.value(
+      value: _authBloc,
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
-          child: BlocListener<AuthBloc, AuthState>(
+          child: BlocConsumer<AuthBloc, AuthState>(
+            listenWhen: (prev, cur) => prev != cur,
             listener: (context, state) {
+              debugPrint('[UI] Auth state => $state');
+
               if (state is AuthLoading) {
-                // optional: show progress indicator via overlay/snack or setState
-                // We'll show a simple snackbar (and remove it when done)
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Logging in...'),
-                    duration: Duration(seconds: 20),
-                  ),
-                );
-              } else {
-                // remove any lingering 'Logging in...' snackbars
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                _showLoader();
+                return;
               }
+
+              // hide loader on any non-loading state
+              _hideLoader();
 
               if (state is AuthSuccess) {
-                // Navigate to dashboard on successful login
-                context.pushNamed(Routes.dashboard.name);
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!mounted) return;
+                  debugPrint('[UI] navigating to dashboard (AuthSuccess)');
+                  context.goNamed(Routes.dashboard.name);
+                });
               } else if (state is AuthFailure) {
-                // Show failure message
+                final error = state.error;
+                if (!mounted) return;
                 ScaffoldMessenger.of(
                   context,
-                ).showSnackBar(SnackBar(content: Text(state.error)));
+                ).showSnackBar(SnackBar(content: Text(error)));
+              } else if (state is AuthOtpSent) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!mounted) return;
+                  context.goNamed(Routes.dashboard.name);
+                });
               }
             },
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  const SizedBox(height: 40),
-
-                  _buildLogo(),
-                  const SizedBox(height: 24),
-
-                  AppText(
-                    _isLogin
-                        ? 'Login Your Account Vortex'
-                        : 'Sign Up Your Account Vortex',
-                    fontSize: 24,
-                    color: textColor,
-                    textStyle: 'hb',
-                    w: FontWeight.w600,
-                    textAlign: TextAlign.center,
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  AppText(
-                    _isLogin
-                        ? 'Enter Your Credentials To Access Your Account'
-                        : 'Fill In The Details To Create Your Account',
-                    fontSize: 12,
-                    color: secondaryTextColor,
-                    textStyle: 'jb',
-                    w: FontWeight.w400,
-                    textAlign: TextAlign.center,
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  AuthTabSwitcher(
-                    isLogin: _isLogin,
-                    onLoginTap: () => setState(() => _isLogin = true),
-                    onRegisterTap: () => setState(() => _isLogin = false),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    transitionBuilder: (child, anim) =>
-                        FadeTransition(opacity: anim, child: child),
-                    child: _isLogin
-                        ? _buildLoginWithBloc()
-                        : SignupFormWidget(
-                            key: const ValueKey("signup"),
-                            onSubmit: _onSignupSubmit,
-                          ),
-                  ),
-
-                  const SizedBox(height: 40),
-                ],
-              ),
-            ),
+            builder: (context, state) {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    _buildLogo(),
+                    const SizedBox(height: 24),
+                    AppText(
+                      _isLogin
+                          ? 'Login Your Account Vortex'
+                          : 'Sign Up Your Account Vortex',
+                      fontSize: 24,
+                      color: textColor,
+                      textStyle: 'hb',
+                      w: FontWeight.w600,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    AppText(
+                      _isLogin
+                          ? 'Enter Your Credentials To Access Your Account'
+                          : 'Fill In The Details To Create Your Account',
+                      fontSize: 12,
+                      color: secondaryTextColor,
+                      textStyle: 'jb',
+                      w: FontWeight.w400,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 28),
+                    AuthTabSwitcher(
+                      isLogin: _isLogin,
+                      onLoginTap: () => setState(() => _isLogin = true),
+                      onRegisterTap: () => setState(() => _isLogin = false),
+                    ),
+                    const SizedBox(height: 28),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, anim) =>
+                          FadeTransition(opacity: anim, child: child),
+                      child: _isLogin
+                          ? _buildLoginWithBloc(state)
+                          : SignupFormWidget(
+                              key: const ValueKey("signup"),
+                              onSubmit: _onSignupSubmit,
+                            ),
+                    ),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildLoginWithBloc() {
+  Widget _buildLoginWithBloc(AuthState state) {
     return Column(
       key: const ValueKey("login"),
       children: [
-        // Login form that calls back with email & password
         LoginFormWidget(
           key: const ValueKey("login_form_widget"),
           onSubmit: (String email, String password) {
             _onLoginSubmit(email, password);
           },
         ),
-
-        const SizedBox(height: 12),
-
-        // Show inline loading indicator while bloc is in AuthLoading
-        BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            if (state is AuthLoading) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: CircularProgressIndicator(),
-              );
-            }
-            return const SizedBox.shrink();
-          },
-        ),
+  
       ],
     );
   }
 
   Widget _buildLogo() {
-    return SizedBox(
-      width: 80,
-      height: 80,
-      child: Image.asset(AppIcons.logo),
-      //child: CustomPaint(painter: VortexLogoPainter()),
-    );
+    return SizedBox(width: 80, height: 80, child: Image.asset(AppIcons.logo));
   }
 }

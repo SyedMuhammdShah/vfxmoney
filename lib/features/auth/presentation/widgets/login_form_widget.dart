@@ -29,7 +29,10 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
 
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
+      debugPrint('[UI] LoginFormWidget submitting email=${_email.text}');
       widget.onSubmit(_email.text.trim(), _password.text.trim());
+    } else {
+      debugPrint('[UI] LoginFormWidget validation failed');
     }
   }
 

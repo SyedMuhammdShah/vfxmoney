@@ -20,15 +20,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final params = LoginParams(email: event.email, password: event.password);
       final user = await loginUseCase(params);
 
-      // If server requires OTP flow, the remote may still return the user with otpRequired true.
-      if (user.otpRequired == true) {
-        emit(const AuthOtpSent(message: 'OTP sent. Please verify.'));
-      } else {
-        emit(AuthSuccess(user: user));
-      }
+      print('[AuthBloc] login succeeded, user=$user');
+      emit(AuthSuccess(user: user));
     } catch (e) {
-      final message = e is Exception ? e.toString() : 'Unknown error';
-      emit(AuthFailure(error: message));
+      print('[AuthBloc] login failed: $e');
+      emit(AuthFailure(error: e.toString()));
     }
   }
 }

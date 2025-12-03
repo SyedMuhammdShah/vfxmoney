@@ -87,7 +87,9 @@ void _registerUseCases() {
 
 // Bloc (factory so new instance per consumer)
 void _registerBlocs() {
-  locator.registerFactory(() => AuthBloc(loginUseCase: locator()));
+  locator.registerFactory(
+    () => AuthBloc(loginUseCase: locator<LoginUseCase>()),
+  );
 }
 // JwtEncryptionService (if not already)
 

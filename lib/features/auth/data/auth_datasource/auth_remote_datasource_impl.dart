@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:vfxmoney/core/errors/exceptions.dart';
 import 'package:vfxmoney/core/params/auth_params/auth_params.dart';
 import 'package:vfxmoney/core/services/service_locator.dart';
@@ -17,144 +18,165 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   AuthRemoteDataSourceImpl({required this.apiService});
 
+  // Detect php serialized "s:NNN:"...";" and return inner string or null
+  String? _unwrapPhpSerialized(String s) {
+    final reg = RegExp(r'''s:\d+:"([\s\S]*)";$''');
+    final m = reg.firstMatch(s.trim());
+    return m?.group(1);
+  }
+
+  // Try to convert dynamic response into Map<String,dynamic> user object
+  Map<String, dynamic>? _parseToMap(dynamic resp) {
+    try {
+      // 1) If already a Map and looks like payload or user
+      if (resp is Map<String, dynamic>) {
+        // common envelope { success: bool, data: {...} }
+        if (resp['data'] is Map<String, dynamic>) {
+          return Map<String, dynamic>.from(resp['data'] as Map);
+        }
+        // sometimes backend returns user directly as top-level map
+        if (resp.containsKey('id') ||
+            resp.containsKey('token') ||
+            resp.containsKey('email')) {
+          return Map<String, dynamic>.from(resp);
+        }
+        // sometimes decrypted payload landed in 'raw' as JSON string
+        if (resp['raw'] is String) {
+          final rawStr = resp['raw'] as String;
+          final unwrapped = _unwrapPhpSerialized(rawStr) ?? rawStr;
+          try {
+            final parsed = jsonDecode(unwrapped);
+            if (parsed is Map<String, dynamic>)
+              return Map<String, dynamic>.from(parsed['data'] ?? parsed);
+          } catch (_) {
+            // ignore and continue
+          }
+        }
+      }
+
+      // 2) If resp is a String: try decrypt (jwt or laravel) then parse JSON
+      if (resp is String && resp.trim().isNotEmpty) {
+        // try decryptAny (supports JWT and Laravel-style)
+        try {
+          final decrypted = jwtService.decryptAny(resp);
+          if (decrypted is Map<String, dynamic>) {
+            // if decrypted contains data envelope
+            if (decrypted['data'] is Map<String, dynamic>) {
+              return Map<String, dynamic>.from(decrypted['data'] as Map);
+            }
+            return Map<String, dynamic>.from(decrypted);
+          }
+        } catch (_) {
+          // not decryptable — maybe php-serialized or plain json
+          final maybe = _unwrapPhpSerialized(resp) ?? resp;
+          try {
+            final parsed = jsonDecode(maybe);
+            if (parsed is Map<String, dynamic>) {
+              if (parsed['data'] is Map<String, dynamic>)
+                return Map<String, dynamic>.from(parsed['data']);
+              if (parsed.containsKey('id') ||
+                  parsed.containsKey('token') ||
+                  parsed.containsKey('email')) {
+                return Map<String, dynamic>.from(parsed);
+              }
+            }
+          } catch (_) {
+            // ignore
+          }
+        }
+      }
+    } catch (_) {
+      // swallow and return null
+    }
+
+    return null;
+  }
+
   @override
   Future<AuthUserModel> login(LoginParams params) async {
     try {
-      // Ensure params.toJson() contains "route": "auth.login"
       final payload = params.toJson();
+      if (kDebugMode)
+        debugPrint('AuthRemoteDataSourceImpl.login payload: $payload');
 
-      // POST to base URL (empty endpoint) — backend reads 'route' from payload
-      // Set encryptPayload according to backend requirement. Here kept false as you indicated.
       final response = await apiService.post(
-        '', // empty string -> post to baseUrl
+        '',
         payload: payload,
         isAuthorize: false,
         encryptPayload: false,
       );
 
+      if (kDebugMode)
+        debugPrint(
+          'AuthRemoteDataSourceImpl.login raw response.data: ${response.data}',
+        );
+
       final resp = response.data;
-      if (resp == null) {
-        throw ServerException('Empty response from server');
-      }
+      final dataMap = _parseToMap(resp);
 
-      // Helper to convert various shapes into a Map<String, dynamic> for user data
-      Map<String, dynamic>? _extractDataMap(dynamic r) {
-        try {
-          // 1) If already a Map and contains 'success' and 'data' as Map → use data
-          if (r is Map<String, dynamic>) {
-            if (r['success'] != null && r['data'] != null) {
-              final d = r['data'];
-              if (d is Map<String, dynamic>)
-                return Map<String, dynamic>.from(d);
-              if (d is String && d.trim().isNotEmpty) {
-                // maybe encrypted string or JSON string
-                try {
-                  final decrypted = jwtService.decryptAny(d);
-                  return Map<String, dynamic>.from(decrypted);
-                } catch (_) {
-                  try {
-                    return Map<String, dynamic>.from(jsonDecode(d) as Map);
-                  } catch (_) {}
-                }
-              }
-            }
-
-            // 2) If map looks like the user object directly (contains id or email or token)
-            if (r.containsKey('id') ||
-                r.containsKey('email') ||
-                r.containsKey('token')) {
-              return Map<String, dynamic>.from(r);
-            }
-
-            // 3) If top-level 'data' is present as Map → return it
-            if (r['data'] is Map<String, dynamic>) {
-              return Map<String, dynamic>.from(r['data']);
-            }
-          }
-
-          // 4) If server returned a plain encrypted string (Laravel encrypted blob)
-          if (r is String && r.trim().isNotEmpty) {
-            try {
-              final decrypted = jwtService.decryptAny(r);
-              // decrypted might be { success, message, data: {...} } or directly the data
-              if (decrypted is Map<String, dynamic>) {
-                if (decrypted['data'] is Map<String, dynamic>) {
-                  return Map<String, dynamic>.from(decrypted['data']);
-                }
-                if (decrypted.containsKey('id') ||
-                    decrypted.containsKey('token')) {
-                  return Map<String, dynamic>.from(decrypted);
-                }
-                // If decrypted contains nested 'data' as string/json, try that
-                if (decrypted['data'] is String) {
-                  try {
-                    final nested = jwtService.decryptAny(
-                      decrypted['data'] as String,
-                    );
-                    if (nested is Map<String, dynamic>)
-                      return Map<String, dynamic>.from(nested);
-                  } catch (_) {}
-                }
-              }
-            } catch (_) {
-              // not decryptable — maybe plain json string
-              try {
-                final parsed = jsonDecode(r);
-                if (parsed is Map<String, dynamic>) {
-                  if (parsed['data'] is Map<String, dynamic>) {
-                    return Map<String, dynamic>.from(parsed['data']);
-                  }
-                  if (parsed.containsKey('id') || parsed.containsKey('token')) {
-                    return Map<String, dynamic>.from(parsed);
-                  }
-                }
-              } catch (_) {}
-            }
-          }
-        } catch (_) {
-          // swallow and return null below
-        }
-        return null;
-      }
-
-      final dataMap = _extractDataMap(resp);
       if (dataMap == null) {
+        if (kDebugMode)
+          debugPrint(
+            'AuthRemoteDataSourceImpl: failed to parse response -> $resp',
+          );
         throw ServerException('Unexpected login response shape');
       }
+
+      if (kDebugMode)
+        debugPrint('AuthRemoteDataSourceImpl: extracted dataMap: $dataMap');
 
       final userModel = AuthUserModel.fromJson(dataMap);
 
       if (userModel.token != null && userModel.token!.isNotEmpty) {
         await storageService.setToken(userModel.token!);
+        if (kDebugMode) debugPrint('Token ${userModel.token}');
+      }
+
+      // store full user object for later use
+      try {
+        await storageService.setUser(userModel); // accepts AuthUserModel
+        await storageService.setLoginStatus(true);
+        if (kDebugMode)
+          debugPrint('Saved user to StorageService and set isLoggedIn=true');
+      } catch (e, st) {
+        if (kDebugMode) debugPrint('Failed to persist user: $e\n$st');
+        // don't fail login just because saving to shared_prefs failed
       }
 
       return userModel;
     } on DioException catch (e) {
-      // Try to extract message from an encrypted error body
-      try {
-        final raw = e.response?.data;
-        if (raw is String && raw.trim().isNotEmpty) {
+      // Try to extract a usable error message (decrypted or php serialized)
+      final raw = e.response?.data;
+
+      // attempt decrypted string
+      if (raw is String && raw.isNotEmpty) {
+        try {
+          final decrypted = jwtService.decryptAny(raw);
+          final msg = (decrypted is Map && decrypted['message'] != null)
+              ? decrypted['message'].toString()
+              : decrypted.toString();
+          throw ServerException(msg);
+        } catch (_) {
+          // fallthrough to php/JSON attempt
+          final maybe = _unwrapPhpSerialized(raw) ?? raw;
           try {
-            final decrypted = jwtService.decryptAny(raw);
-            final msg = (decrypted['message'] ?? decrypted.toString())
-                .toString();
-            throw ServerException(msg);
-          } catch (_) {}
-        } else if (raw is Map<String, dynamic> && raw['data'] is String) {
-          try {
-            final decrypted = jwtService.decryptAny(raw['data'] as String);
-            final msg = (decrypted['message'] ?? decrypted.toString())
-                .toString();
-            throw ServerException(msg);
-          } catch (_) {}
+            final parsed = jsonDecode(maybe);
+            if (parsed is Map && parsed['message'] != null) {
+              throw ServerException(parsed['message'].toString());
+            }
+          } catch (_) {
+            // ignore
+          }
         }
-      } catch (_) {
-        // ignore fallback
+      } else if (raw is Map<String, dynamic>) {
+        // if server returned a structured error message
+        final msg = raw['message'] ?? raw['error'] ?? raw.toString();
+        throw ServerException(msg.toString());
       }
 
-      final message = (e.response?.data is Map<String, dynamic>)
-          ? ((e.response?.data as Map<String, dynamic>)['message'] ??
-                'Server error')
+      // fallback to DioException message
+      final message = e.response?.data is Map<String, dynamic>
+          ? (e.response?.data as Map<String, dynamic>)['message'] ?? e.message
           : e.message;
       throw ServerException(message ?? 'Network error');
     }
