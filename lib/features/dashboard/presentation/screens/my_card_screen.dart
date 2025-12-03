@@ -32,7 +32,7 @@ class MyCardScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: ListView.separated(
           itemCount: cards.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 18),
+          separatorBuilder: (context, index) => const SizedBox(height: 24),
           itemBuilder: (context, index) {
             return CardListItem(card: cards[index], isDarkMode: isDarkMode);
           },
@@ -55,7 +55,7 @@ class CardListItem extends StatelessWidget {
     final secondaryTextColor = Theme.of(context).colorScheme.secondary;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xff1A1A1A) : Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -65,100 +65,76 @@ class CardListItem extends StatelessWidget {
               : Colors.black.withOpacity(0.05),
         ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Large Card Image
           _buildCardImage(),
 
-          const SizedBox(width: 16),
+          const SizedBox(height: 20),
 
-          // Balance Section
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Eye Icon to show/hide balance
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Icon(
-                    card.showBalance
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    size: 20,
-                    color: secondaryTextColor,
-                  ),
+          // Balance Section Below Card
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Available Balance",
+                      style: TextStyle(fontSize: 12, color: secondaryTextColor),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      card.showBalance ? card.balance : "•••••••••",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: textColor,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
 
-                const SizedBox(height: 8),
-
-                Text(
-                  "Available Balance",
-                  style: TextStyle(fontSize: 11, color: secondaryTextColor),
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  card.showBalance ? card.balance : "•••••••••",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: textColor,
-                  ),
-                ),
-              ],
-            ),
+              // Eye Icon to show/hide balance
+              Icon(
+                card.showBalance
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                size: 24,
+                color: secondaryTextColor,
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  /// -------- CARD IMAGE --------
+  /// -------- LARGE CARD IMAGE --------
   Widget _buildCardImage() {
     final String image = card.cardType == CardType.green
         ? "assets/images/card_front.png"
         : "assets/images/card_front.png";
 
     return Container(
-      width: 120,
-      height: 75,
+      width: double.infinity,
+      height: 200,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.20),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Image.asset(image, fit: BoxFit.cover),
-      ),
-    );
-  }
-
-  /// -------- VIEW CARD BUTTON --------
-  Widget _buildViewButton() {
-    return GestureDetector(
-      onTap: () {
-        // Implement view card screen
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: const Color(0xFF4CAF50),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: const Text(
-          "View Card",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
       ),
     );
   }

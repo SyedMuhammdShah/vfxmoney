@@ -62,6 +62,7 @@ class DynamicFormPopup extends StatefulWidget {
 class _DynamicFormPopupState extends State<DynamicFormPopup> {
   final Map<String, TextEditingController> _controllers = {};
   final Map<String, dynamic> _formValues = {};
+  String? selectedCardType;
 
   @override
   void initState() {
@@ -69,6 +70,11 @@ class _DynamicFormPopupState extends State<DynamicFormPopup> {
     for (var field in widget.fields) {
       _controllers[field.label] = TextEditingController(text: field.hintText);
       _formValues[field.label] = field.hintText;
+      if (field.label == 'Card Type') {
+        selectedCardType = 'Virtual Card'; // Default selection
+        _controllers[field.label]?.text = 'Virtual Card';
+        _formValues[field.label] = 'Virtual Card';
+      }
     }
   }
 
@@ -136,14 +142,19 @@ class _DynamicFormPopupState extends State<DynamicFormPopup> {
                 const SizedBox(height: 32),
                 // Form Fields
                 ...widget.fields.map((field) => _buildFormField(field)),
+
                 // Footer text
-                if (widget.footerText != null) ...[
-                  const SizedBox(height: 16),
-                  Text(
-                    widget.footerText!,
-                    style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                Text(
+                  selectedCardType == 'Physical Card'
+                      ? 'A one-time activation fee of \$299.99 will be added to your first deposit, which must be at least \$15.'
+                      : 'A one-time activation fee of \$99.99 will be added to your first deposit, which must be at least \$15.',
+                  style: TextStyle(
+                    color: Colors.grey.shade400,
+                    fontSize: 12,
+                    height: 1.3,
                   ),
-                ],
+                ),
+
                 const SizedBox(height: 24),
                 // Submit Button
                 SizedBox(
@@ -276,6 +287,7 @@ class _DynamicFormPopupState extends State<DynamicFormPopup> {
           setState(() {
             _formValues[field.label] = value;
             _controllers[field.label]?.text = value;
+            selectedCardType = value;
           });
         },
         itemBuilder: (BuildContext context) {
