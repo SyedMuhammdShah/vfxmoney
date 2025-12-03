@@ -78,16 +78,97 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  /// Replace the current _handleLogout with this:
   void _handleLogout(BuildContext context) async {
-    final storage = locator<StorageService>();
+    final confirmed = await _showLogoutConfirmationDialog(context);
+    if (confirmed != true) return; // user chose No or dismissed
+  }
 
-    /// Clear user session
-    await storage.clear();
+  Future<bool?> _showLogoutConfirmationDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    /// Redirect to onboarding
-    if (context.mounted) {
-      context.goNamed(Routes.onboarding.name);
-    }
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+
+          // TITLE
+          title: Row(
+            children: [
+              Icon(
+                Icons.logout_rounded,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              const SizedBox(width: 12),
+              AppText(
+                'Confirm Logout',
+                fontSize: 18,
+                color: Theme.of(context).colorScheme.onSurface,
+                textStyle: 'hb',
+                w: FontWeight.w600,
+              ),
+            ],
+          ),
+
+          // MESSAGE
+          content: AppText(
+            'Are you sure you want to logout?',
+            fontSize: 14,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+            textStyle: 'jb',
+          ),
+
+          actionsPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 8,
+          ),
+          actions: [
+            // NO BUTTON
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: AppText(
+                'No',
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurface,
+                textStyle: 'hb',
+                w: FontWeight.w500,
+              ),
+            ),
+
+            // YES BUTTON
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+              onPressed: () async {
+                Navigator.of(context).pop(true);
+
+                final storage = locator<StorageService>();
+                await storage.clear();
+
+                if (context.mounted) {
+                  context.goNamed(Routes.login.name);
+                }
+              },
+              child: AppText(
+                'Yes',
+                fontSize: 14,
+                color: Colors.white,
+                textStyle: 'hb',
+                w: FontWeight.w600,
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildSettingsTile(
