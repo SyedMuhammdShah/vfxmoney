@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:vfxmoney/core/constants/app_colors.dart';
 import 'package:vfxmoney/core/constants/app_icons.dart';
 import 'package:vfxmoney/shared/widgets/custom_appbar.dart';
+import 'package:vfxmoney/shared/widgets/push_button.dart';
 
 class FeesAndLimitScreen extends StatelessWidget {
   const FeesAndLimitScreen({Key? key}) : super(key: key);
@@ -162,32 +164,7 @@ class CardOptionWidget extends StatelessWidget {
           // Get Started Button
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0EA5E9),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  AppText(
-                    'Get Started',
-                    fontSize: 15,
-                    color: Colors.white,
-                    textStyle: 'hb',
-                    w: FontWeight.w600,
-                  ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.arrow_forward, size: 18),
-                ],
-              ),
-            ),
+            child: AppSubmitButton(title: "Get Started", onTap: () {}),
           ),
         ],
       ),
@@ -212,7 +189,11 @@ class CardOptionWidget extends StatelessWidget {
                   : const Color(0xFFE8E8E8),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.check, color: Colors.white, size: 16),
+            child: const Icon(
+              Icons.check,
+              color: AppColors.greenShade,
+              size: 16,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(

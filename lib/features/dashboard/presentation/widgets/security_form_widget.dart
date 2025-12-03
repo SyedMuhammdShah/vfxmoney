@@ -1,6 +1,8 @@
 // security_form.dart
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vfxmoney/core/constants/app_colors.dart';
+import 'package:vfxmoney/core/navigation/route_enums.dart';
 import 'package:vfxmoney/shared/widgets/app_text.dart';
 import 'package:vfxmoney/shared/widgets/input_field.dart';
 import 'package:vfxmoney/shared/widgets/push_button.dart';
@@ -32,6 +34,7 @@ class _SecurityFormState extends State<SecurityForm> {
       child: Form(
         key: _formKey,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             // Current Password
             AppInputField(
@@ -99,6 +102,52 @@ class _SecurityFormState extends State<SecurityForm> {
                 }
                 return null;
               },
+            ),
+            // 🔵 Link-style text
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: InkWell(
+                onTap: () {
+                  context.pushNamed(Routes.feesAndLimit.name);
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surface.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Colors.blueAccent.withOpacity(0.4),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 14,
+                        color: Colors.blueAccent,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        "Fees & Limits",
+                        style: TextStyle(
+                          color: Colors.blueAccent,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
 
             const SizedBox(height: 16),
@@ -172,6 +221,7 @@ class _SecurityFormState extends State<SecurityForm> {
                 ],
               ),
             ),
+
             const SizedBox(height: 32),
 
             // Divider

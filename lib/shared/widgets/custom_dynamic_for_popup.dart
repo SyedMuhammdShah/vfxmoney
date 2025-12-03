@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vfxmoney/core/navigation/route_enums.dart';
 import 'package:vfxmoney/shared/model/form_field_Model.dart';
 
 class DynamicFormPopup extends StatefulWidget {
@@ -7,6 +9,8 @@ class DynamicFormPopup extends StatefulWidget {
   final List<FormFieldData> fields;
   final String buttonText;
   final String? footerText;
+  final bool showFeesButton;
+  final bool showFooterText;
   final Function(Map<String, dynamic>) onSubmit;
 
   const DynamicFormPopup({
@@ -16,6 +20,8 @@ class DynamicFormPopup extends StatefulWidget {
     required this.fields,
     required this.buttonText,
     this.footerText,
+    this.showFeesButton = false,
+    this.showFooterText = false,
     required this.onSubmit,
   }) : super(key: key);
 
@@ -27,6 +33,8 @@ class DynamicFormPopup extends StatefulWidget {
     required String buttonText,
     String? footerText,
     required Function(Map<String, dynamic>) onSubmit,
+    required bool showFeesButton,
+    required bool showFooterText,
   }) {
     showDialog(
       context: context,
@@ -47,6 +55,9 @@ class DynamicFormPopup extends StatefulWidget {
               fields: fields,
               buttonText: buttonText,
               footerText: footerText,
+              // <<< IMPORTANT: pass the flags into the widget
+              showFeesButton: showFeesButton,
+              showFooterText: showFooterText,
               onSubmit: onSubmit,
             ),
           ),
@@ -62,6 +73,7 @@ class DynamicFormPopup extends StatefulWidget {
 class _DynamicFormPopupState extends State<DynamicFormPopup> {
   final Map<String, TextEditingController> _controllers = {};
   final Map<String, dynamic> _formValues = {};
+
   String? selectedCardType;
 
   @override
@@ -144,18 +156,68 @@ class _DynamicFormPopupState extends State<DynamicFormPopup> {
                 ...widget.fields.map((field) => _buildFormField(field)),
 
                 // Footer text
-                Text(
-                  selectedCardType == 'Physical Card'
-                      ? 'A one-time activation fee of \$299.99 will be added to your first deposit, which must be at least \$15.'
-                      : 'A one-time activation fee of \$99.99 will be added to your first deposit, which must be at least \$15.',
-                  style: TextStyle(
-                    color: Colors.grey.shade400,
-                    fontSize: 12,
-                    height: 1.3,
+                if (widget.showFooterText)
+                  Text(
+                    selectedCardType == 'Physical Card'
+                        ? 'A one-time activation fee of \$299.99 will be added to your first deposit, which must be at least \$15.'
+                        : 'A one-time activation fee of \$99.99 will be added to your first deposit, which must be at least \$15.',
+                    style: TextStyle(
+                      color: Colors.grey.shade400,
+                      fontSize: 12,
+                      height: 1.3,
+                    ),
                   ),
-                ),
 
                 const SizedBox(height: 24),
+                if (widget.showFeesButton) ...[
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: InkWell(
+                      onTap: () {
+                        // open your route
+                        Navigator.of(context).pop();
+                        context.pushNamed(Routes.feesAndLimit.name);
+                        // OR: context.pushNamed(Routes.feesAndLimit.name);
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.blueAccent.withOpacity(0.5),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              size: 14,
+                              color: Colors.blueAccent,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              "Fees & Limits",
+                              style: TextStyle(
+                                color: Colors.blueAccent,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
                 // Submit Button
                 SizedBox(
                   width: double.infinity,
