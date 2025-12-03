@@ -7,6 +7,8 @@ class CreateCardPopup {
   /// CreateCardPopup.show(context);
   static void show(BuildContext context) {
     DynamicFormPopup.show(
+      showFeesButton: true, 
+      showFooterText: true,
       context: context,
       title: 'Create New Cards',
       subtitle: 'Enter details for your new virtual card.',
@@ -25,6 +27,7 @@ class CreateCardPopup {
         ),
       ],
       footerText: '',
+
       buttonText: 'Create Card',
       onSubmit: (values) {
         print('Create Card Values: $values');

@@ -5,6 +5,8 @@ import 'package:vfxmoney/shared/widgets/custom_dynamic_for_popup.dart';
 class LoadMoneyPopup {
   static void show(BuildContext context) {
     DynamicFormPopup.show(
+      showFeesButton: false,
+      showFooterText: false,
       context: context,
       title: 'Unload Money',
       subtitle:
