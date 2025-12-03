@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vfxmoney/core/constants/app_icons.dart';
 import 'package:vfxmoney/shared/widgets/custom_appbar.dart';
 
 class FeesAndLimitScreen extends StatelessWidget {
@@ -103,7 +104,7 @@ class CardOptionWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: _buildCardImage(),
+                child: Image.asset(AppIcons.cardFront, fit: BoxFit.fill),
               ),
               // Logo badge in top right
               Positioned(
@@ -186,107 +187,6 @@ class CardOptionWidget extends StatelessWidget {
                   const Icon(Icons.arrow_forward, size: 18),
                 ],
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCardImage() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1E3A8A), Color(0xFF1E40AF), Color(0xFF3B82F6)],
-        ),
-      ),
-      child: Stack(
-        children: [
-          // Circuit pattern
-          Positioned.fill(child: CustomPaint(painter: CircuitPatternPainter())),
-          // Card content
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // EMV Chip with contactless
-                    Row(
-                      children: [
-                        Container(
-                          width: 45,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFD4AF37),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 4,
-                                margin: const EdgeInsets.only(top: 6),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFB8941F),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Container(
-                                height: 18,
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFB8941F),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Icon(
-                          Icons.contactless,
-                          color: Colors.white70,
-                          size: 32,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                // Mastercard logo
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFEB001B),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    Transform.translate(
-                      offset: const Offset(-12, 0),
-                      child: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFF79E1B),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
             ),
           ),
         ],

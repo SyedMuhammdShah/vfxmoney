@@ -24,7 +24,7 @@ class CreateCardPopup {
           dropdownItems: ['Virtual Card', 'Physical Card'],
         ),
       ],
-      footerText: 'Fees: Physical Card (Fee 100\$) or Virtual Card Fee 50%',
+      footerText: '',
       buttonText: 'Create Card',
       onSubmit: (values) {
         print('Create Card Values: $values');
