@@ -21,37 +21,17 @@ class VortexAuthScreen extends StatefulWidget {
   State<VortexAuthScreen> createState() => _VortexAuthScreenState();
 }
 
-// Replace your VortexAuthScreen state class with this version (only the state class shown)
 class _VortexAuthScreenState extends State<VortexAuthScreen> {
-  // show login by default to simplify testing
-  bool _isLogin = true;
-  bool _isDialogShowing = false; // track loader dialog
-
-  late final AuthBloc _authBloc;
-
-  @override
-  void initState() {
-    super.initState();
-    // Create a single bloc instance for this screen (avoid calling locator repeatedly)
-    _authBloc = locator<AuthBloc>();
-  }
-
-  @override
-  void dispose() {
-    // If you created the bloc here, close it to release resources.
-    // If you're sharing this bloc higher in the widget tree (e.g., app-level),
-    // DO NOT close it here. Only close if you created it in initState as above.
-    _authBloc.close();
-    super.dispose();
-  }
+  bool _isLogin = false;
+  bool _isDialogShowing = false;
 
   void _onLoginSubmit(String email, String password) {
-    debugPrint('[UI] Dispatching LoginRequested for $email via _authBloc');
-    _authBloc.add(LoginRequested(email: email, password: password));
+    final bloc = context.read<AuthBloc>();
+    bloc.add(LoginRequested(email: email, password: password));
   }
 
   void _onSignupSubmit() {
-    context.goNamed(Routes.dashboard.name);
+    context.pushReplacementNamed(Routes.dashboard.name);
   }
 
   void _showLoader() {
@@ -59,7 +39,6 @@ class _VortexAuthScreenState extends State<VortexAuthScreen> {
     _isDialogShowing = true;
     showDialog(
       context: context,
-      useRootNavigator: true,
       barrierDismissible: false,
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
@@ -75,48 +54,97 @@ class _VortexAuthScreenState extends State<VortexAuthScreen> {
     } catch (_) {}
   }
 
+  // Simple OTP dialog — show verification code for testing (remove showing code in prod)
+  void _showOtpDialog(String title, String message, String? code) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        final TextEditingController otpController = TextEditingController(
+          text: '',
+        );
+        return AlertDialog(
+          title: Text(title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(message),
+              const SizedBox(height: 8),
+              TextField(
+                controller: otpController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(hintText: 'Enter OTP'),
+              ),
+              if (code != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'DEBUG OTP: $code', // show for dev/test, remove for prod
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // For now we just close and navigate — implement verify call if available
+                Navigator.of(context).pop();
+                // If you have verification endpoint, dispatch event to verify here.
+                context.pushReplacementNamed(Routes.dashboard.name);
+              },
+              child: const Text('Proceed'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = Theme.of(context).colorScheme.onSurface;
     final Color secondaryTextColor = Theme.of(context).colorScheme.secondary;
 
-    // Provide the same bloc instance we created in initState
-    return BlocProvider<AuthBloc>.value(
-      value: _authBloc,
+    return BlocProvider<AuthBloc>(
+      create: (_) => locator<AuthBloc>(),
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: BlocConsumer<AuthBloc, AuthState>(
-            listenWhen: (prev, cur) => prev != cur,
             listener: (context, state) {
+              // Logging
               debugPrint('[UI] Auth state => $state');
 
+              // Manage loader visibility
               if (state is AuthLoading) {
                 _showLoader();
                 return;
+              } else {
+                _hideLoader();
               }
 
-              // hide loader on any non-loading state
-              _hideLoader();
-
               if (state is AuthSuccess) {
+                // Normal success -> navigate to dashboard
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (!mounted) return;
-                  debugPrint('[UI] navigating to dashboard (AuthSuccess)');
-                  context.goNamed(Routes.dashboard.name);
+                  context.pushReplacementNamed(Routes.dashboard.name);
+                });
+              } else if (state is AuthOtpSent) {
+                // Account pending -> show OTP popup using the user info
+                final user = state.user;
+                final message = state.message;
+                final debugCode =
+                    (user.emailVerificationCode != null &&
+                        user.emailVerificationCode!.isNotEmpty)
+                    ? user.emailVerificationCode
+                    : null;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _showOtpDialog('Verify Account', message, debugCode);
                 });
               } else if (state is AuthFailure) {
-                final error = state.error;
-                if (!mounted) return;
                 ScaffoldMessenger.of(
                   context,
-                ).showSnackBar(SnackBar(content: Text(error)));
-              } else if (state is AuthOtpSent) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (!mounted) return;
-                  context.goNamed(Routes.dashboard.name);
-                });
+                ).showSnackBar(SnackBar(content: Text(state.error)));
               }
             },
             builder: (context, state) {
@@ -187,7 +215,13 @@ class _VortexAuthScreenState extends State<VortexAuthScreen> {
             _onLoginSubmit(email, password);
           },
         ),
-  
+        const SizedBox(height: 12),
+        // optional inline indicator while AuthLoading
+        if (state is AuthLoading)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: CircularProgressIndicator(),
+          ),
       ],
     );
   }

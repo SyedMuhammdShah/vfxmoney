@@ -20,10 +20,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final params = LoginParams(email: event.email, password: event.password);
       final user = await loginUseCase(params);
 
-      print('[AuthBloc] login succeeded, user=$user');
-      emit(AuthSuccess(user: user));
+      // If server marks account as pending (e.g., needs email verification),
+      // emit AuthOtpSent so UI can show OTP dialog.
+      final String status = (user.status ?? '').toLowerCase();
+      if (status == 'pending') {
+        emit(
+          AuthOtpSent(
+            user: user,
+            message: 'Account pending — please verify OTP',
+          ),
+        );
+      } else {
+        emit(AuthSuccess(user: user));
+      }
     } catch (e) {
-      print('[AuthBloc] login failed: $e');
       emit(AuthFailure(error: e.toString()));
     }
   }

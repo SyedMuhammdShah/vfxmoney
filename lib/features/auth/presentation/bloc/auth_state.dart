@@ -21,11 +21,12 @@ class AuthSuccess extends AuthState {
 }
 
 class AuthOtpSent extends AuthState {
+  final UserEntity user;
   final String message;
-  const AuthOtpSent({required this.message});
+  const AuthOtpSent({required this.user, required this.message});
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [user, message];
 }
 
 class AuthFailure extends AuthState {
