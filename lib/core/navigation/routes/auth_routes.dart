@@ -10,7 +10,19 @@ final authRoutes = [
     ),
     pageBuilder: GoTransitions.openUpwards.call,
   ),
- 
+
+  GoRoute(
+    path: '/otp-verification',
+    name: 'otp-verification',
+    builder: (context, state) {
+      final extra = state.extra as Map<String, dynamic>?;
+      final email = extra?['email'] as String? ?? '';
+      final debugOtpCode = extra?['debugOtpCode'] as String?;
+
+      return OtpVerificationScreen(email: email, debugOtpCode: debugOtpCode);
+    },
+  ),
+
   GoRoute(
     name: Routes.forgotPass.name,
     path: Routes.forgotPass.path,
@@ -81,7 +93,6 @@ final authRoutes = [
   //     return AddAddressScreen(isEdit: isEdit, existingAddress: existingAddress);
   //   },
   // ),
-
   GoRoute(
     name: Routes.loginSuccess.name,
     path: Routes.loginSuccess.path,

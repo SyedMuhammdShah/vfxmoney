@@ -1,339 +1,266 @@
-// import 'dart:async';
-// import 'package:flutter/gestures.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:vfxmoney/core/extensions/text_theme_extension.dart';
-// import 'package:vfxmoney/core/extensions/theme_extension.dart';
-// import 'package:vfxmoney/core/validators/phone_formatter.dart';
-// import 'package:vfxmoney/features/auth/presentation/bloc/auth_bloc.dart';
-// import 'package:vfxmoney/features/auth/presentation/bloc/auth_events.dart';
-// import 'package:vfxmoney/features/auth/presentation/bloc/auth_state.dart';
-// import 'package:vfxmoney/shared/widgets/custom_appbar.dart';
-// import 'package:vfxmoney/shared/widgets/gap.dart';
-// import 'package:vfxmoney/shared/widgets/push_button.dart';
-// import 'package:vfxmoney/shared/widgets/toast.dart';
-// import '../../../../core/navigation/route_enums.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vfxmoney/core/constants/app_icons.dart';
+import 'package:vfxmoney/core/navigation/route_enums.dart';
+import 'package:vfxmoney/shared/widgets/app_text.dart';
+import 'package:vfxmoney/shared/widgets/push_button.dart';
 
-// class OtpScreen extends StatefulWidget {
-//   const OtpScreen({super.key});
+class OtpVerificationScreen extends StatefulWidget {
+  final String email;
+  final String? debugOtpCode;
 
-//   @override
-//   State<OtpScreen> createState() => _OtpScreenState();
-// }
+  const OtpVerificationScreen({
+    Key? key,
+    required this.email,
+    this.debugOtpCode,
+  }) : super(key: key);
 
-// class _OtpScreenState extends State<OtpScreen> {
-//   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-//   final TextEditingController otpController = TextEditingController();
-//   final FocusNode focusNode = FocusNode();
+  @override
+  State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
+}
 
-//   String source = "login";
-//   String verificationType = "email";
-//   String userEmail = "";
-//   String? otpToken;
-//   bool _initialized = false;
+class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
+  final List<TextEditingController> _otpControllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
+  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+  bool _isVerifying = false;
 
-//   Timer? _timer;
-//   int _secondsRemaining = 30;
+  @override
+  void dispose() {
+    for (var controller in _otpControllers) {
+      controller.dispose();
+    }
+    for (var node in _focusNodes) {
+      node.dispose();
+    }
+    super.dispose();
+  }
 
-//   @override
-//   void didChangeDependencies() {
-//     super.didChangeDependencies();
+  String get _otpCode {
+    return _otpControllers.map((c) => c.text).join();
+  }
 
-//     if (!_initialized) {
-//       final args =
-//           GoRouterState.of(context).extra as Map<String, dynamic>? ?? {};
+  bool get _isOtpComplete {
+    return _otpCode.length == 6;
+  }
 
-//       source = args["source"] ?? "login";
-//       verificationType = args["verificationType"] ?? "email";
-//       userEmail = args["email"] ?? '';
-//       _startTimer();
-//       _initialized = true;
-//     }
-//   }
+  void _onOtpChanged(int index, String value) {
+    if (value.isNotEmpty && index < 5) {
+      _focusNodes[index + 1].requestFocus();
+    }
+    setState(() {});
+  }
 
-//   @override
-//   void initState() {
-//     super.initState();
-//   }
+  void _onBackspace(int index, String value) {
+    if (value.isEmpty && index > 0) {
+      _focusNodes[index - 1].requestFocus();
+    }
+  }
 
-//   @override
-//   void dispose() {
-//     _timer?.cancel();
-//     otpController.dispose();
-//     focusNode.dispose();
-//     super.dispose();
-//   }
+  Future<void> _verifyOtp() async {
+    if (!_isOtpComplete) return;
 
-//   void _startTimer() {
-//     _timer?.cancel();
-//     setState(() => _secondsRemaining = 30);
-//     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-//       if (_secondsRemaining > 0) {
-//         setState(() => _secondsRemaining--);
-//       } else {
-//         timer.cancel();
-//       }
-//     });
-//   }
+    setState(() => _isVerifying = true);
 
-//   void _sendOtp() {
-//     if (verificationType == 'email') {
-//       context.read<AuthBloc>().add(const SendEmailOtpEvent(''));
-//     } else {
-//       context.read<AuthBloc>().add(const SendPhoneOtpEvent(''));
-//     }
-//   }
+    try {
+      // TODO: Implement your OTP verification API call here
+      // final response = await apiService.post('/verify-otp', payload: {
+      //   'email': widget.email,
+      //   'otp': _otpCode,
+      // });
 
-//   void handleResend() {
-//     if (_secondsRemaining == 0) {
-//       _startTimer();
-//       _sendOtp();
-//     }
-//   }
+      await Future.delayed(const Duration(seconds: 2));
 
-//   void handleBack() {
-//     context.goNamed(Routes.verifyAccount.name);
-//   }
+      if (mounted) {
+        context.pushReplacementNamed(Routes.dashboard.name);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Verification failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isVerifying = false);
+      }
+    }
+  }
 
-//   void handleSubmit() {
-//     if (_formKey.currentState!.validate()) {
-//       final otp = otpController.text;
+  Future<void> _resendOtp() async {
+    // TODO: Implement resend OTP API call
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('OTP resent to your email')));
+  }
 
-//       if (source == "login") {
-//         // For login, use the email from navigation extra
-//         final email = userEmail as String? ?? '';
-//         context.read<AuthBloc>().add(
-//           VerifyLoginOtpEvent(otp: otp, email: email),
-//         );
-//       } else {
-//         if (verificationType == 'email') {
-//           context.read<AuthBloc>().add(
-//             VerifyEmailOtpEvent(otp: otp, token: otpToken ?? ''),
-//           );
-//         } else {
-//           context.read<AuthBloc>().add(
-//             VerifyPhoneOtpEvent(otp: otp, token: otpToken ?? ''),
-//           );
-//         }
-//       }
-//     }
-//   }
+  @override
+  Widget build(BuildContext context) {
+    final textColor = Theme.of(context).colorScheme.onSurface;
+    final secondaryTextColor = Theme.of(context).colorScheme.secondary;
 
-//   String _getSubtitle() {
-//     if (verificationType == 'email') {
-//       return userEmail.isNotEmpty
-//           ? 'Enter the code sent to your: $userEmail'
-//           : 'Enter the code sent to your email';
-//     } else {
-//       return userEmail.isNotEmpty
-//           ? 'Enter the code sent to your:  ${PhoneFormatter.formatUS(userEmail)}'
-//           : 'Enter the code sent to your phone number';
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocConsumer<AuthBloc, AuthState>(
-//       listener: (context, state) {
-//         if (state is OtpSent) {
-//           showToast(msg: state.message);
-//         } else if (state is Authenticated) {
-//           showToast(
-//             msg: verificationType == 'email'
-//                 ? 'Email verified successfully!'
-//                 : 'Phone verified successfully!',
-//           );
-
-//           Future.delayed(const Duration(milliseconds: 500), () {
-//             final authUser = state.authUser;
-
-//             if (context.mounted) {
-//               if (source == "login") {
-//                 context.goNamed(
-//                   Routes.loginSuccess.name,
-//                   extra: {
-//                     "title": "Login Successful!",
-//                     "subtitle": "Welcome back, you are logged in successfully.",
-//                     "source": "login",
-//                   },
-//                 );
-//               } else if (source == "signup") {
-//                 if ((authUser.user?.isEmailVerified ?? false) &&
-//                     (authUser.user?.isPhoneVerified ?? false)) {
-//                   context.goNamed(
-//                     Routes.loginSuccess.name,
-//                     extra: {
-//                       "title": "Phone Number and Email verified.",
-//                       "subtitle":
-//                           "You have successfully verified your account.",
-//                       "source": "signup",
-//                     },
-//                   );
-//                 } else {
-//                   context.goNamed(Routes.verifyAccount.name);
-//                 }
-//               }
-//             }
-//           });
-//         } else if (state is AuthError) {
-//           errorToast(msg: state.message);
-//         }
-//       },
-
-//       builder: (context, state) {
-//         final isLoading = state is AuthLoading || state is OtpSending;
-
-//         return SafeArea(
-//           child: Scaffold(
-//             // appBar: RoundedAppBarWithProfile(
-//             //   height: 80,
-//             //   title: "Verification",
-//             //   titleSize: 25,
-//             //   subTitle: _getSubtitle(),
-//             //   subTitleSize: 13,
-//             //   alignTitleCenter: true,
-//             //   showNameLocation: false,
-//             //   showProfileImage: false,
-//             //   showIcons: true,
-//             //   titleColor: Colors.white,
-//             // ),
-//             body: Stack(
-//               children: [
-//                 SingleChildScrollView(
-//                   padding: const EdgeInsets.all(20),
-//                   child: Column(
-//                     children: [
-//                       const Gap(20),
-//                       // Form(
-//                       //   key: _formKey,
-//                       //   child: Pinput(
-//                       //     controller: otpController,
-//                       //     length: 4,
-//                       //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                       //     keyboardType: TextInputType.number,
-//                       //     autofocus: true,
-//                       //     enabled: !isLoading,
-//                       //     validator: (v) {
-//                       //       if (v?.isEmpty ?? false) {
-//                       //         return "Please fill the field";
-//                       //       }
-//                       //       if (v?.length != 4) {
-//                       //         return "Please enter 4 digits";
-//                       //       }
-//                       //       return null;
-//                       //     },
-//                       //     defaultPinTheme: PinTheme(
-//                       //       height: 56,
-//                       //       width: 56,
-//                       //       decoration: BoxDecoration(
-//                       //         color: context.colors.onPrimary,
-//                       //         borderRadius: BorderRadius.circular(12),
-//                       //       ),
-//                       //     ),
-//                       //     focusedPinTheme: PinTheme(
-//                       //       height: 56,
-//                       //       width: 56,
-//                       //       decoration: BoxDecoration(
-//                       //         color:
-//                       //             context.theme.inputDecorationTheme.fillColor,
-//                       //         border: Border.all(
-//                       //           color: context.colors.secondary,
-//                       //           width: 1,
-//                       //         ),
-//                       //         borderRadius: BorderRadius.circular(12),
-//                       //       ),
-//                       //     ),
-//                       //   ),
-//                       // ),
-//                       const SizedBox(height: 30),
-
-//                       /// Resend timer text
-//                       Text.rich(
-//                         textAlign: TextAlign.center,
-//                         TextSpan(
-//                           children: [
-//                             TextSpan(
-//                               text: "Didn't receive the OTP? ",
-//                               style: context.labelMedium?.copyWith(
-//                                 color: context.colors.secondary,
-//                               ),
-//                             ),
-//                             if (_secondsRemaining > 0)
-//                               TextSpan(
-//                                 text:
-//                                     "Resend in 0:${_secondsRemaining.toString().padLeft(2, '0')}",
-//                                 style: context.labelMedium?.copyWith(
-//                                   color: context.colors.primary,
-//                                 ),
-//                               )
-//                             else
-//                               TextSpan(
-//                                 text: "Resend",
-//                                 recognizer: TapGestureRecognizer()
-//                                   ..onTap = isLoading ? null : handleResend,
-//                                 style: context.labelMedium?.copyWith(
-//                                   decoration: TextDecoration.underline,
-//                                   color: isLoading
-//                                       ? Colors.grey
-//                                       : context.colors.primary,
-//                                 ),
-//                               ),
-//                           ],
-//                         ),
-//                       ),
-//                       const SizedBox(height: 40),
-
-//                       /// Verify button
-//                       SizedBox(
-//                         width: double.infinity,
-//                         child: AppSubmitButton(
-//                           title: "Verify",
-//                           onTap: isLoading ? () {} : handleSubmit,
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-
-//                 /// Loading Overlay
-//                 if (isLoading)
-//                   Container(
-//                     color: Colors.black.withValues(alpha: 0.5),
-//                     child: Center(
-//                       child: Card(
-//                         margin: const EdgeInsets.symmetric(horizontal: 50),
-//                         child: Padding(
-//                           padding: const EdgeInsets.all(24.0),
-//                           child: Column(
-//                             mainAxisSize: MainAxisSize.min,
-//                             children: [
-//                               CircularProgressIndicator(
-//                                 valueColor: AlwaysStoppedAnimation<Color>(
-//                                   Theme.of(context).colorScheme.primary,
-//                                 ),
-//                               ),
-//                               const SizedBox(height: 16),
-//                               Text(
-//                                 state is OtpSending
-//                                     ? 'Sending OTP...'
-//                                     : 'Verifying...',
-//                                 style: const TextStyle(
-//                                   fontSize: 16,
-//                                   fontWeight: FontWeight.w500,
-//                                 ),
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//               ],
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: textColor),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              SizedBox(
+                width: 80,
+                height: 80,
+                child: Image.asset(AppIcons.logo),
+              ),
+              const SizedBox(height: 32),
+              AppText(
+                'Verify Your Email',
+                fontSize: 24,
+                color: textColor,
+                textStyle: 'hb',
+                w: FontWeight.w600,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              AppText(
+                'Enter the 6-digit code sent to\n${widget.email}',
+                fontSize: 14,
+                color: secondaryTextColor,
+                textStyle: 'jb',
+                w: FontWeight.w400,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 40),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(6, (index) {
+                  return SizedBox(
+                    width: 50,
+                    height: 60,
+                    child: TextField(
+                      controller: _otpControllers[index],
+                      focusNode: _focusNodes[index],
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      maxLength: 1,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                      ),
+                      decoration: InputDecoration(
+                        counterText: '',
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: secondaryTextColor.withOpacity(0.3),
+                            width: 1.5,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).primaryColor,
+                            width: 2,
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.surface,
+                      ),
+                      onChanged: (value) {
+                        _onOtpChanged(index, value);
+                        _onBackspace(index, value);
+                      },
+                      onTap: () {
+                        _otpControllers[index].clear();
+                      },
+                    ),
+                  );
+                }),
+              ),
+              const SizedBox(height: 24),
+              if (widget.debugOtpCode != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.orange),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'DEBUG MODE',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'OTP: ${widget.debugOtpCode}',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+              Opacity(
+                opacity: _isOtpComplete && !_isVerifying ? 1.0 : 0.6,
+                child: AbsorbPointer(
+                  absorbing: !_isOtpComplete || _isVerifying,
+                  child: AppSubmitButton(
+                    title: _isVerifying ? 'Verifying...' : 'Verify',
+                    onTap: _verifyOtp,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AppText(
+                    "Didn't receive the code? ",
+                    fontSize: 14,
+                    color: secondaryTextColor,
+                    textStyle: 'jb',
+                    w: FontWeight.w400,
+                  ),
+                  GestureDetector(
+                    onTap: _resendOtp,
+                    child: AppText(
+                      'Resend',
+                      fontSize: 14,
+                      color: Theme.of(context).primaryColor,
+                      textStyle: 'jb',
+                      w: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
