@@ -14,6 +14,7 @@ import 'package:vfxmoney/shared/widgets/app_text.dart';
 import 'package:vfxmoney/core/services/service_locator.dart';
 import 'package:vfxmoney/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:vfxmoney/features/auth/presentation/bloc/auth_state.dart';
+import 'package:vfxmoney/shared/widgets/toast.dart';
 
 class VortexAuthScreen extends StatefulWidget {
   const VortexAuthScreen({super.key});
@@ -95,9 +96,7 @@ class _VortexAuthScreenState extends State<VortexAuthScreen> {
       debugPrint('[UI] ❌ AuthFailure: ${state.error}');
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(state.error), backgroundColor: Colors.red),
-        );
+        errorToast(msg: 'Authentication Failed: ${state.error}');
       }
     }
   }

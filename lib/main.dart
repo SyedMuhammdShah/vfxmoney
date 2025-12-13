@@ -12,6 +12,7 @@ import 'package:vfxmoney/features/theme/bloc/theme_state.dart';
 
 import 'package:vfxmoney/firebase_options.dart';
 import 'package:vfxmoney/shared/widgets/connection_alert.dart';
+import 'package:vfxmoney/shared/widgets/toast.dart';
 
 import 'core/navigation/app_router.dart';
 
@@ -58,19 +59,8 @@ class _MyAppState extends State<MyApp> {
     if (_lastBackPressTime == null ||
         now.difference(_lastBackPressTime!) > const Duration(seconds: 2)) {
       _lastBackPressTime = now;
+      errorToast(msg: 'Press back again to exit');
 
-      // Show snackbar message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Press back again to exit'),
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
       return false; // Don't exit
     }
 

@@ -4,7 +4,7 @@ import 'package:vfxmoney/core/constants/app_colors.dart';
 
 
 
-void showToast({required String msg}) {
+void successToast({required String msg}) {
   Fluttertoast.showToast(
     msg: msg,
     backgroundColor: AppColors.tealShade,

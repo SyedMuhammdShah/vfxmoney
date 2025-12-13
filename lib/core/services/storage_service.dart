@@ -133,4 +133,24 @@ class StorageService {
       await _preferences.setString(_key, uuid); // Restore UUID
     }
   }
+
+  /// 🔐 Proper logout – clears session but keeps device UUID
+  Future<void> logout() async {
+    if (kDebugMode) {
+      print('🚪 Logging out user...');
+    }
+
+    await _preferences.remove(_token);
+    await _preferences.remove(_keyUser);
+    await _preferences.remove(_keyIsLoggedIn);
+    await _preferences.remove(_keyIsGuest);
+    await _preferences.remove(_keyIsSocialLogin);
+
+    // Reset notifier
+    userNotifier.value = null;
+
+    if (kDebugMode) {
+      print('✅ Logout complete. Session cleared.');
+    }
+  }
 }

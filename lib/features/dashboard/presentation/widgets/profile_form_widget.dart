@@ -4,6 +4,7 @@ import 'package:vfxmoney/core/constants/app_colors.dart';
 import 'package:vfxmoney/shared/widgets/app_text.dart';
 import 'package:vfxmoney/shared/widgets/input_field.dart';
 import 'package:vfxmoney/shared/widgets/push_button.dart';
+import 'package:vfxmoney/shared/widgets/toast.dart';
 
 class ProfileForm extends StatefulWidget {
   const ProfileForm({super.key});
@@ -506,16 +507,7 @@ class _ProfileFormState extends State<ProfileForm> {
 
   void _updateProfile() {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: AppText(
-            'Profile updated successfully!',
-            color: Colors.white,
-            textStyle: 'jb',
-          ),
-          backgroundColor: Theme.of(context).primaryColor, // Green Velvet
-        ),
-      );
+      successToast(msg: 'Profile updated successfully!');
     }
   }
 

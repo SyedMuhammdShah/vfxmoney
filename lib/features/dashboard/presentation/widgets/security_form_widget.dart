@@ -6,6 +6,7 @@ import 'package:vfxmoney/core/navigation/route_enums.dart';
 import 'package:vfxmoney/shared/widgets/app_text.dart';
 import 'package:vfxmoney/shared/widgets/input_field.dart';
 import 'package:vfxmoney/shared/widgets/push_button.dart';
+import 'package:vfxmoney/shared/widgets/toast.dart';
 
 class SecurityForm extends StatefulWidget {
   const SecurityForm({super.key});
@@ -260,12 +261,7 @@ class _SecurityFormState extends State<SecurityForm> {
 
   void _updateSecurity() {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Security settings updated successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      successToast(msg: 'Security settings updated successfully!');
     }
   }
 

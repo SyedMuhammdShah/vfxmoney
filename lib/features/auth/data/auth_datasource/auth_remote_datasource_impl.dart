@@ -96,8 +96,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<AuthUserModel> login(LoginParams params) async {
     try {
       final payload = params.toJson();
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint('AuthRemoteDataSourceImpl.login payload: $payload');
+      }
 
       final response = await apiService.post(
         '',
@@ -106,49 +107,60 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         encryptPayload: false,
       );
 
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint(
           'AuthRemoteDataSourceImpl.login raw response.data: ${response.data}',
         );
+      }
 
       final resp = response.data;
       final dataMap = _parseToMap(resp);
 
       if (dataMap == null) {
-        if (kDebugMode)
-          debugPrint(
-            'AuthRemoteDataSourceImpl: failed to parse response -> $resp',
-          );
         throw ServerException('Unexpected login response shape');
       }
 
-      if (kDebugMode)
-        debugPrint('AuthRemoteDataSourceImpl: extracted dataMap: $dataMap');
-
       final userModel = AuthUserModel.fromJson(dataMap);
 
-      if (userModel.token != null && userModel.token!.isNotEmpty) {
-        await storageService.setToken(userModel.token!);
-        if (kDebugMode) debugPrint('Token ${userModel.token}');
+      final status = (userModel.status ?? '').toLowerCase();
+
+      if (kDebugMode) {
+        debugPrint('User status: $status');
       }
 
-      // store full user object for later use
-      try {
-        await storageService.setUser(userModel); // accepts AuthUserModel
+      /// ✅ ONLY persist if account is ACTIVE
+      if (status != 'pending') {
+        if (userModel.token != null && userModel.token!.isNotEmpty) {
+          await storageService.setToken(userModel.token!);
+        }
+
+        await storageService.setUser(userModel);
         await storageService.setLoginStatus(true);
-        if (kDebugMode)
-          debugPrint('Saved user to StorageService and set isLoggedIn=true');
-      } catch (e, st) {
-        if (kDebugMode) debugPrint('Failed to persist user: $e\n$st');
-        // don't fail login just because saving to shared_prefs failed
+
+        if (kDebugMode) {
+          debugPrint('✅ User persisted (ACTIVE account)');
+        }
+      } else {
+        final temToken = (userModel.token ?? '');
+        final response = await apiService.post(
+          '',
+          payload: SendVrfEmail(
+            email: params.email,
+            route: 'auth.send_verification_email',
+          ).toJson(),
+          token: temToken,
+          encryptPayload: false,
+        );
+        final resp = response.data;
+        if (kDebugMode) {
+          debugPrint('Send OTP for Email VRF $resp');
+        }
       }
 
       return userModel;
     } on DioException catch (e) {
-      // Try to extract a usable error message (decrypted or php serialized)
       final raw = e.response?.data;
 
-      // attempt decrypted string
       if (raw is String && raw.isNotEmpty) {
         try {
           final decrypted = jwtService.decryptAny(raw);
@@ -157,28 +169,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
               : decrypted.toString();
           throw ServerException(msg);
         } catch (_) {
-          // fallthrough to php/JSON attempt
           final maybe = _unwrapPhpSerialized(raw) ?? raw;
           try {
             final parsed = jsonDecode(maybe);
             if (parsed is Map && parsed['message'] != null) {
               throw ServerException(parsed['message'].toString());
             }
-          } catch (_) {
-            // ignore
-          }
+          } catch (_) {}
         }
       } else if (raw is Map<String, dynamic>) {
-        // if server returned a structured error message
         final msg = raw['message'] ?? raw['error'] ?? raw.toString();
         throw ServerException(msg.toString());
       }
 
-      // fallback to DioException message
-      final message = e.response?.data is Map<String, dynamic>
-          ? (e.response?.data as Map<String, dynamic>)['message'] ?? e.message
-          : e.message;
-      throw ServerException(message ?? 'Network error');
+      throw ServerException(e.message ?? 'Network error');
     }
   }
 }

@@ -142,7 +142,6 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
 
-            // YES BUTTON
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.error,
@@ -151,11 +150,12 @@ class SettingsScreen extends StatelessWidget {
                 Navigator.of(context).pop(true);
 
                 final storage = locator<StorageService>();
-                await storage.clear();
 
-                if (context.mounted) {
-                  context.goNamed(Routes.login.name);
-                }
+                await storage.logout(); // 🔥 single source of truth
+
+                if (!context.mounted) return;
+
+                context.goNamed(Routes.login.name);
               },
               child: AppText(
                 'Yes',

@@ -13,7 +13,6 @@ import 'package:vfxmoney/features/auth/presentation/screens/forgot_pass_screen.d
 import 'package:vfxmoney/features/auth/presentation/screens/login_screen.dart';
 import 'package:vfxmoney/features/auth/presentation/screens/otp_screen.dart';
 import 'package:vfxmoney/features/auth/presentation/screens/signup_screen.dart';
-import 'package:vfxmoney/features/auth/presentation/screens/verify_account_screen.dart';
 import 'package:vfxmoney/features/notification/presentation/screens/notification_screen.dart';
 import 'package:vfxmoney/features/profile/presentation/screens/user_profile_screen.dart';
 import 'package:vfxmoney/features/setting/presentation/screens/fees_&_limit.dart';

@@ -5,6 +5,7 @@ import 'package:vfxmoney/core/validators/form_validators.dart';
 import 'package:vfxmoney/shared/widgets/app_text.dart';
 import 'package:vfxmoney/shared/widgets/input_field.dart';
 import 'package:vfxmoney/shared/widgets/push_button.dart';
+import 'package:vfxmoney/shared/widgets/toast.dart';
 
 class SignupFormWidget extends StatefulWidget {
   final VoidCallback onSubmit;
@@ -40,16 +41,7 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
       if (!_termsChecked) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: AppText(
-              "Please accept Terms & Privacy Policy",
-              color: Colors.white,
-              textStyle: 'jb',
-            ),
-            backgroundColor: Theme.of(context).primaryColor,
-          ),
-        );
+        errorToast(msg: 'Please accept Terms & Privacy Policy');
         return;
       }
       widget.onSubmit();
