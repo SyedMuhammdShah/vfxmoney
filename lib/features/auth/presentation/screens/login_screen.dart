@@ -26,6 +26,7 @@ class VortexAuthScreen extends StatefulWidget {
 class _VortexAuthScreenState extends State<VortexAuthScreen> {
   bool _isLogin = false;
   late final AuthBloc _authBloc; // Store the bloc instance
+  bool _handledNavigation = false;
 
   @override
   void initState() {
@@ -56,7 +57,7 @@ class _VortexAuthScreenState extends State<VortexAuthScreen> {
   }
 
   void _onSignupSubmit() {
-    context.pushReplacementNamed(Routes.dashboard.name);
+    // context.pushReplacementNamed(Routes.dashboard.name);
   }
 
   void _handleAuthState(AuthState state) {
@@ -64,13 +65,22 @@ class _VortexAuthScreenState extends State<VortexAuthScreen> {
     debugPrint('[UI] 🎯 Handling state: ${state.runtimeType}');
     debugPrint('========================================');
 
+    // Prevent duplicate navigation
+    if (_handledNavigation && (state is AuthSuccess || state is AuthOtpSent)) {
+      debugPrint('[UI] ⛔ Navigation already handled, skipping');
+      return;
+    }
+
     if (state is AuthSuccess) {
+      _handledNavigation = true;
+
       debugPrint('[UI] ✅ AuthSuccess - Navigating to dashboard');
 
-      if (mounted) {
-        context.pushReplacementNamed(Routes.dashboard.name);
-      }
+      if (!mounted) return;
+      context.pushReplacementNamed(Routes.dashboard.name);
     } else if (state is AuthOtpSent) {
+      _handledNavigation = true;
+
       debugPrint('========================================');
       debugPrint('[UI] 🎉 AuthOtpSent DETECTED!!!');
       debugPrint('[UI] User email: ${state.user.email}');
@@ -78,26 +88,34 @@ class _VortexAuthScreenState extends State<VortexAuthScreen> {
       debugPrint('[UI] OTP Code: ${state.user.emailVerificationCode}');
       debugPrint('========================================');
 
-      final email = state.user.email ?? 'No email';
+      final email = state.user.email ?? '';
       final otpCode = state.user.emailVerificationCode;
 
-      if (mounted) {
-        debugPrint('[UI] 🚀 Navigating to OTP screen...');
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) {
-              debugPrint('[UI] 📱 Building OtpVerificationScreen');
-              return OtpVerificationScreen(email: email, debugOtpCode: otpCode);
-            },
-          ),
-        );
-      }
+      if (!mounted) return;
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) =>
+              OtpVerificationScreen(email: email, debugOtpCode: otpCode),
+        ),
+      );
+    } else if (state is AuthRegisterSuccess) {
+      debugPrint('[UI] ✅ Registration Success');
+
+      successToast(msg: state.message);
+
+      if (!mounted) return;
+
+      setState(() {
+        _isLogin = true; // 🔥 Switch to Login tab
+      });
     } else if (state is AuthFailure) {
       debugPrint('[UI] ❌ AuthFailure: ${state.error}');
 
-      if (mounted) {
-        errorToast(msg: 'Authentication Failed: ${state.error}');
-      }
+      _handledNavigation = false; // allow retry
+
+      if (!mounted) return;
+      errorToast(msg: state.error);
     }
   }
 

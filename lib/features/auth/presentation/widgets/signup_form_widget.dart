@@ -1,7 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vfxmoney/core/constants/app_colors.dart';
+import 'package:vfxmoney/core/params/auth_params/auth_params.dart';
 import 'package:vfxmoney/core/validators/form_validators.dart';
+import 'package:vfxmoney/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:vfxmoney/features/auth/presentation/bloc/auth_events.dart';
 import 'package:vfxmoney/shared/widgets/app_text.dart';
 import 'package:vfxmoney/shared/widgets/input_field.dart';
 import 'package:vfxmoney/shared/widgets/push_button.dart';
@@ -44,7 +48,18 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
         errorToast(msg: 'Please accept Terms & Privacy Policy');
         return;
       }
-      widget.onSubmit();
+
+      context.read<AuthBloc>().add(
+        RegisterRequested(
+          params: RegisterParams(
+            firstName: _firstName.text.trim(),
+            lastName: _lastName.text.trim(),
+            email: _email.text.trim(),
+            password: _password.text.trim(),
+            passwordConfirmation: _repeatPassword.text.trim(),
+          ),
+        ),
+      );
     }
   }
 
@@ -85,7 +100,7 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
             hintText: 'Password',
             obscureText: _obscurePassword,
             isPassword: true,
-            validator: FormValidators.validatePhoneNumber,
+            validator: FormValidators.validatePassword,
             onToggleObscure: () {
               setState(() => _obscurePassword = !_obscurePassword);
             },
@@ -97,7 +112,7 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
             hintText: 'Repeat Password',
             obscureText: _obscureRepeatPassword,
             isPassword: true,
-            validator: FormValidators.validatePhoneNumber,
+            validator: FormValidators.validatePassword,
             onToggleObscure: () {
               setState(() => _obscureRepeatPassword = !_obscureRepeatPassword);
             },

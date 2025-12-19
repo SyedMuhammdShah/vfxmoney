@@ -8,6 +8,7 @@ import 'package:vfxmoney/core/errors/exceptions.dart';
 import 'package:vfxmoney/core/interceptors/interceptors.dart';
 import 'package:vfxmoney/core/services/service_locator.dart';
 import 'package:vfxmoney/core/services/storage_service.dart';
+import 'package:vfxmoney/core/utils/api_error_parser.dart';
 import 'device_data_service.dart';
 import 'package:vfxmoney/core/services/jwt_encryption_service.dart';
 
@@ -18,18 +19,18 @@ class ApiService {
   final DeviceInfoService deviceInfoService = locator<DeviceInfoService>();
 
   ApiService({String? baseUrl})
-      : _dio = Dio(
-          BaseOptions(
-            baseUrl: baseUrl ?? "",
-            connectTimeout: const Duration(seconds: 60),
-            receiveTimeout: const Duration(seconds: 60),
-            sendTimeout: const Duration(seconds: 60),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-          ),
-        ) {
+    : _dio = Dio(
+        BaseOptions(
+          baseUrl: baseUrl ?? "",
+          connectTimeout: const Duration(seconds: 60),
+          receiveTimeout: const Duration(seconds: 60),
+          sendTimeout: const Duration(seconds: 60),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        ),
+      ) {
     debugPrint("Base URL: $baseUrl");
 
     // Add custom interceptor that decrypts & logs readable request/response
@@ -114,7 +115,9 @@ class ApiService {
       final bool isMultipart = payload is FormData;
       final dioHeaders = {
         ...apiHeaders,
-        'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json',
+        'Content-Type': isMultipart
+            ? 'multipart/form-data'
+            : 'application/json',
       };
 
       dynamic bodyToSend = payload;
@@ -171,22 +174,25 @@ class ApiService {
 
       return response;
     } on DioException catch (e) {
-      // Try to decrypt error response if present (many servers encrypt error payload too)
+      final raw = e.response?.data;
+
+      // Try decrypting full response first
       try {
-        final raw = e.response?.data;
         final full = _tryDecryptFullString(raw);
         if (full != null) {
-          // rebuild an informative ServerException
-          final message = (full['message'] ?? full.toString()).toString();
+          final message = ApiErrorParser.extractMessage(full);
           throw ServerException(message);
         }
-      } catch (_) {
-        // ignore
+      } catch (_) {}
+
+      // If already a Map (Laravel style)
+      if (raw is Map<String, dynamic>) {
+        final message = ApiErrorParser.extractMessage(raw);
+        throw ServerException(message);
       }
 
-      throw ServerException(
-        (e.response?.data as Map<String, dynamic>?)?['message'] ?? e.message ?? 'Something went wrong!',
-      );
+      // Fallback
+      throw ServerException(e.message ?? 'Network error. Please try again.');
     }
   }
 
@@ -245,7 +251,9 @@ class ApiService {
         }
       } catch (_) {}
       throw ServerException(
-        (e.response?.data as Map<String, dynamic>?)?['message'] ?? e.message ?? 'Something went wrong!',
+        (e.response?.data as Map<String, dynamic>?)?['message'] ??
+            e.message ??
+            'Something went wrong!',
       );
     }
   }
@@ -270,7 +278,9 @@ class DecryptAndLogInterceptor extends Interceptor {
     try {
       final body = options.data;
       dynamic toLog = body;
-      if (body is Map && body.containsKey('payload') && body['payload'] is String) {
+      if (body is Map &&
+          body.containsKey('payload') &&
+          body['payload'] is String) {
         // try to decrypt payload for readable logging
         try {
           final decrypted = _jwt.decryptAny(body['payload'] as String);
@@ -281,7 +291,9 @@ class DecryptAndLogInterceptor extends Interceptor {
         }
       }
       if (kDebugMode) {
-        log('➡️ HTTP ${options.method} ${options.uri}\nHeaders: ${options.headers}\nBody: $toLog');
+        log(
+          '➡️ HTTP ${options.method} ${options.uri}\nHeaders: ${options.headers}\nBody: $toLog',
+        );
       }
     } catch (e) {
       if (kDebugMode) log('DecryptAndLogInterceptor.onRequest error: $e');
@@ -319,7 +331,9 @@ class DecryptAndLogInterceptor extends Interceptor {
       }
 
       if (kDebugMode) {
-        log('⬅️ HTTP ${response.requestOptions.method} ${response.requestOptions.uri}\nStatus: ${response.statusCode}\nResponse: $toLog');
+        log(
+          '⬅️ HTTP ${response.requestOptions.method} ${response.requestOptions.uri}\nStatus: ${response.statusCode}\nResponse: $toLog',
+        );
       }
     } catch (e) {
       if (kDebugMode) log('DecryptAndLogInterceptor.onResponse error: $e');
@@ -342,7 +356,8 @@ class DecryptAndLogInterceptor extends Interceptor {
             if (kDebugMode) log('❗HTTP ERROR decrypted data: $decrypted');
           }
         } catch (e) {
-          if (kDebugMode) log('DecryptAndLogInterceptor.onError decrypt failed: $e');
+          if (kDebugMode)
+            log('DecryptAndLogInterceptor.onError decrypt failed: $e');
         }
       }
     } catch (e) {

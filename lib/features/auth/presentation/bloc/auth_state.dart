@@ -36,3 +36,25 @@ class AuthFailure extends AuthState {
   @override
   List<Object?> get props => [error];
 }
+
+// New State for Registration Success
+class AuthRegisterSuccess extends AuthState {
+  final String message;
+
+  const AuthRegisterSuccess({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+// OTP Verification States
+class AuthOtpVerifying extends AuthState {}
+
+class AuthOtpVerified extends AuthState {
+  final UserEntity user;
+
+  const AuthOtpVerified({required this.user});
+
+  @override
+  List<Object?> get props => [user];
+}

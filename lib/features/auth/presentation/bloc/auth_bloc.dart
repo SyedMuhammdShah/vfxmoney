@@ -2,14 +2,24 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:vfxmoney/core/params/auth_params/auth_params.dart';
 import 'package:vfxmoney/features/auth/domain/auth_usecases/login_usecase.dart';
+import 'package:vfxmoney/features/auth/domain/auth_usecases/otp_auth_usecase.dart';
+import 'package:vfxmoney/features/auth/domain/auth_usecases/signup_usecase.dart';
 import 'package:vfxmoney/features/auth/presentation/bloc/auth_events.dart';
 import 'package:vfxmoney/features/auth/presentation/bloc/auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase loginUseCase;
+  final RegisterUseCase registerUseCase;
+  final VerifyOtpUseCase verifyOtpUseCase;
 
-  AuthBloc({required this.loginUseCase}) : super(AuthInitial()) {
+  AuthBloc({
+    required this.loginUseCase,
+    required this.registerUseCase,
+    required this.verifyOtpUseCase,
+  }) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
+    on<RegisterRequested>(_onRegisterRequested);
+    on<VerifyOtpRequested>(_onVerifyOtpRequested);
   }
 
   Future<void> _onLoginRequested(
@@ -53,6 +63,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } catch (e, st) {
       debugPrint('[AuthBloc] ❌ ERROR: $e');
       debugPrint('[AuthBloc] StackTrace: $st');
+      emit(AuthFailure(error: e.toString()));
+    }
+  }
+
+  Future<void> _onRegisterRequested(
+    RegisterRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+
+    try {
+      final message = await registerUseCase(event.params);
+      emit(AuthRegisterSuccess(message: message));
+    } catch (e) {
+      emit(AuthFailure(error: e.toString()));
+    }
+  }
+
+  Future<void> _onVerifyOtpRequested(
+    VerifyOtpRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthOtpVerifying());
+
+    try {
+      final user = await verifyOtpUseCase(
+        VerifyEmailOtpParams(email: event.email, code: event.code),
+      );
+
+      emit(AuthOtpVerified(user: user));
+    } catch (e) {
       emit(AuthFailure(error: e.toString()));
     }
   }

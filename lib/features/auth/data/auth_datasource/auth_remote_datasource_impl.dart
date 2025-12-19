@@ -185,4 +185,70 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ServerException(e.message ?? 'Network error');
     }
   }
+
+  @override
+  Future<String> register(RegisterParams params) async {
+    try {
+      final response = await apiService.post(
+        '',
+        payload: params.toJson(),
+        isAuthorize: false,
+        encryptPayload: false,
+      );
+
+      final resp = response.data;
+
+      final map = _parseToMap(resp);
+      if (map == null) {
+        throw ServerException('Invalid registration response');
+      }
+
+      return map['message']?.toString() ??
+          'Registration successful. Please login.';
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Registration failed');
+    }
+  }
+
+  // OTP Verification
+  Future<AuthUserModel> verifyEmailOtp(VerifyEmailOtpParams params) async {
+    try {
+      final response = await apiService.post(
+        '',
+        payload: params.toJson(),
+        isAuthorize: true, // 🔥 token already exists
+        encryptPayload: false,
+      );
+
+      final dataMap = _parseToMap(response.data);
+
+      if (dataMap == null) {
+        throw ServerException('Invalid OTP verification response');
+      }
+
+      final userModel = AuthUserModel.fromJson(dataMap);
+
+      // ✅ NOW USER IS VERIFIED → PERSIST
+      if (userModel.token != null && userModel.token!.isNotEmpty) {
+        await storageService.setToken(userModel.token!);
+      }
+
+      await storageService.setUser(userModel);
+      await storageService.setLoginStatus(true);
+
+      return userModel;
+    } on DioException catch (e) {
+      final raw = e.response?.data;
+
+      if (raw is String && raw.isNotEmpty) {
+        try {
+          final decrypted = jwtService.decryptAny(raw);
+          final msg = decrypted['message'] ?? decrypted.toString();
+          throw ServerException(msg);
+        } catch (_) {}
+      }
+
+      throw ServerException(e.message ?? 'OTP verification failed');
+    }
+  }
 }

@@ -9,6 +9,8 @@ import 'package:vfxmoney/features/auth/data/auth_repositories_impl/auth_reposito
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vfxmoney/features/auth/domain/auth_repositories/auth_repository.dart';
 import 'package:vfxmoney/features/auth/domain/auth_usecases/login_usecase.dart';
+import 'package:vfxmoney/features/auth/domain/auth_usecases/otp_auth_usecase.dart';
+import 'package:vfxmoney/features/auth/domain/auth_usecases/signup_usecase.dart';
 import 'package:vfxmoney/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:vfxmoney/features/theme/bloc/theme_bloc.dart';
 
@@ -83,12 +85,20 @@ void _registerRepositories() {
 // Usecases
 void _registerUseCases() {
   locator.registerLazySingleton(() => LoginUseCase(locator<AuthRepository>()));
+  locator.registerLazySingleton(() => RegisterUseCase(locator<AuthRepository>()));
+  locator.registerLazySingleton(
+    () => VerifyOtpUseCase(locator<AuthRepository>()),
+  );
 }
 
 // Bloc (factory so new instance per consumer)
 void _registerBlocs() {
   locator.registerFactory(
-    () => AuthBloc(loginUseCase: locator<LoginUseCase>()),
+    () => AuthBloc(
+      loginUseCase: locator<LoginUseCase>(),
+      registerUseCase: locator<RegisterUseCase>(),
+      verifyOtpUseCase: locator<VerifyOtpUseCase>(),
+    ),
   );
 }
 // JwtEncryptionService (if not already)
