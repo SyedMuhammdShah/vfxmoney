@@ -136,6 +136,7 @@ class ApiService {
       }
 
       log(name: 'header', dioHeaders.toString());
+      log(name: 'TOKE', token ?? pref.getToken ?? '');
       // Note: request body logging will be done in DecryptAndLogInterceptor
       final response = await _dio.post(
         endpoint,

@@ -5,5 +5,5 @@ abstract class AuthRemoteDataSource {
   /// Sends login request. Returns AuthUserModel on success.
   Future<AuthUserModel> login(LoginParams params);
   Future<String> register(RegisterParams params);
-  Future<AuthUserModel> verifyEmailOtp(VerifyEmailOtpParams params);
+  Future<AuthUserModel> verifyEmailOtp(VerifyEmailOtpParams params, String token);
 }

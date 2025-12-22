@@ -44,15 +44,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       debugPrint('[AuthBloc] - OTP Code: ${user.emailVerificationCode}');
       debugPrint('========================================');
 
-      final String status = (user.status ?? '').toLowerCase().trim();
+      final String status = (user.emailVerification ?? '').toLowerCase().trim();
       debugPrint('[AuthBloc] Normalized status: "$status"');
 
-      if (status == 'pending') {
+      if (status == '0') {
         debugPrint('[AuthBloc] ✅ Emitting AuthOtpSent');
         emit(
           AuthOtpSent(
             user: user,
             message: 'Account pending — please verify OTP',
+            tempToken: user.token ?? '',
           ),
         );
         debugPrint('[AuthBloc] ✅ AuthOtpSent emitted successfully');
@@ -90,6 +91,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final user = await verifyOtpUseCase(
         VerifyEmailOtpParams(email: event.email, code: event.code),
+        event.token,
       );
 
       emit(AuthOtpVerified(user: user));

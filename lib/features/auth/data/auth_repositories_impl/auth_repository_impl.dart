@@ -21,8 +21,8 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserEntity> verifyEmailOtp(VerifyEmailOtpParams params) async {
-    final model = await remoteDataSource.verifyEmailOtp(params);
+  Future<UserEntity> verifyEmailOtp(VerifyEmailOtpParams params, String token) async {
+    final model = await remoteDataSource.verifyEmailOtp(params, token);
     return model.toEntity();
   }
 }

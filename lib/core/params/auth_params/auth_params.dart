@@ -70,7 +70,7 @@ class VerifyEmailOtpParams {
   VerifyEmailOtpParams({
     required this.email,
     required this.code,
-    this.route = 'user.verify_email_code',
+    this.route = 'user.verify_email',
   });
 
   Map<String, dynamic> toJson() => {

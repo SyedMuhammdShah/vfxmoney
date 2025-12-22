@@ -7,7 +7,7 @@ class VerifyOtpUseCase {
 
   VerifyOtpUseCase(this.repository);
 
-  Future<UserEntity> call(VerifyEmailOtpParams params) {
-    return repository.verifyEmailOtp(params);
+  Future<UserEntity> call(VerifyEmailOtpParams params, String token) {
+    return repository.verifyEmailOtp(params, token);
   }
 }

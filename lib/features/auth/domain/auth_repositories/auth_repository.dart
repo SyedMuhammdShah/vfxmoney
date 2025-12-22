@@ -6,5 +6,5 @@ abstract class AuthRepository {
   Future<UserEntity> login(LoginParams params);
   Future<String> register(RegisterParams params);
 
-  Future<UserEntity> verifyEmailOtp(VerifyEmailOtpParams params);
+  Future<UserEntity> verifyEmailOtp(VerifyEmailOtpParams params, String token);
 }

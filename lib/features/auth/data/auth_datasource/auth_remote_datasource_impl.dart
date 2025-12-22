@@ -122,14 +122,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       final userModel = AuthUserModel.fromJson(dataMap);
 
-      final status = (userModel.status ?? '').toLowerCase();
+      final status = (userModel.emailVerification ?? '').toLowerCase();
 
       if (kDebugMode) {
         debugPrint('User status: $status');
       }
 
       /// ✅ ONLY persist if account is ACTIVE
-      if (status != 'pending') {
+      if (status != '0') {
         if (userModel.token != null && userModel.token!.isNotEmpty) {
           await storageService.setToken(userModel.token!);
         }
@@ -211,12 +211,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   // OTP Verification
-  Future<AuthUserModel> verifyEmailOtp(VerifyEmailOtpParams params) async {
+  Future<AuthUserModel> verifyEmailOtp(VerifyEmailOtpParams params, String token) async {
     try {
       final response = await apiService.post(
         '',
         payload: params.toJson(),
-        isAuthorize: true, // 🔥 token already exists
+        isAuthorize: true,
+        token: token,
         encryptPayload: false,
       );
 
@@ -251,4 +252,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ServerException(e.message ?? 'OTP verification failed');
     }
   }
+
+
 }

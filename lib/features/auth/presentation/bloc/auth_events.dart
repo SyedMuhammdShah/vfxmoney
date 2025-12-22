@@ -32,9 +32,14 @@ class RegisterRequested extends AuthEvent {
 class VerifyOtpRequested extends AuthEvent {
   final String email;
   final String code;
+  final String token;
 
-  const VerifyOtpRequested({required this.email, required this.code});
+  const VerifyOtpRequested({
+    required this.email,
+    required this.code,
+    required this.token,
+  });
 
   @override
-  List<Object?> get props => [email, code];
+  List<Object?> get props => [email, code, token];
 }

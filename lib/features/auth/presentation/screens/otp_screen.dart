@@ -15,11 +15,13 @@ import 'package:vfxmoney/shared/widgets/toast.dart';
 class OtpVerificationScreen extends StatefulWidget {
   final String email;
   final String? debugOtpCode;
+  final String? tempToken;
 
   const OtpVerificationScreen({
     super.key,
     required this.email,
     this.debugOtpCode,
+    required this.tempToken,
   });
 
   @override
@@ -27,10 +29,11 @@ class OtpVerificationScreen extends StatefulWidget {
 }
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  final List<TextEditingController> _otpControllers =
-      List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _focusNodes =
-      List.generate(6, (_) => FocusNode());
+  final List<TextEditingController> _otpControllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
+  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
   bool _isVerifying = false;
 
@@ -45,8 +48,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     super.dispose();
   }
 
-  String get _otpCode =>
-      _otpControllers.map((c) => c.text).join();
+  String get _otpCode => _otpControllers.map((c) => c.text).join();
 
   bool get _isOtpComplete => _otpCode.length == 6;
 
@@ -67,11 +69,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     if (!_isOtpComplete || _isVerifying) return;
 
     context.read<AuthBloc>().add(
-          VerifyOtpRequested(
-            email: widget.email,
-            code: _otpCode,
-          ),
-        );
+      VerifyOtpRequested(
+        email: widget.email,
+        code: _otpCode,
+        token: widget.tempToken.toString(),
+      ),
+    );
   }
 
   void _resendOtp() {
@@ -92,8 +95,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       listener: (context, state) {
         if (state is AuthOtpVerifying) {
           setState(() => _isVerifying = true);
-        } 
-        else {
+        } else {
           setState(() => _isVerifying = false);
         }
 
@@ -119,20 +121,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         ),
         child: Scaffold(
           backgroundColor: backgroundColor,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: textColor),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
           body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 50),
 
                   SizedBox(
                     width: 80,
@@ -189,13 +183,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             fillColor: surfaceColor,
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  BorderSide(color: borderColor),
+                              borderSide: BorderSide(color: borderColor),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  BorderSide(color: primaryColor, width: 2),
+                              borderSide: BorderSide(
+                                color: primaryColor,
+                                width: 2,
+                              ),
                             ),
                           ),
                           onChanged: (value) {
@@ -243,14 +238,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
                   /// VERIFY BUTTON
                   Opacity(
-                    opacity:
-                        _isOtpComplete && !_isVerifying ? 1.0 : 0.6,
+                    opacity: _isOtpComplete && !_isVerifying ? 1.0 : 0.6,
                     child: AbsorbPointer(
-                      absorbing:
-                          !_isOtpComplete || _isVerifying,
+                      absorbing: !_isOtpComplete || _isVerifying,
                       child: AppSubmitButton(
-                        title:
-                            _isVerifying ? 'Verifying...' : 'Verify',
+                        title: _isVerifying ? 'Verifying...' : 'Verify',
                         onTap: _verifyOtp,
                       ),
                     ),

@@ -95,8 +95,11 @@ class _VortexAuthScreenState extends State<VortexAuthScreen> {
 
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) =>
-              OtpVerificationScreen(email: email, debugOtpCode: otpCode),
+          builder: (_) => OtpVerificationScreen(
+            email: email,
+            debugOtpCode: otpCode,
+            tempToken: state.tempToken,
+          ),
         ),
       );
     } else if (state is AuthRegisterSuccess) {

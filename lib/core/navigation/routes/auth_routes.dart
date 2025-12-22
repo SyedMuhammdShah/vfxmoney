@@ -19,7 +19,7 @@ final authRoutes = [
       final email = extra?['email'] as String? ?? '';
       final debugOtpCode = extra?['debugOtpCode'] as String?;
 
-      return OtpVerificationScreen(email: email, debugOtpCode: debugOtpCode);
+      return OtpVerificationScreen(email: email, debugOtpCode: debugOtpCode, tempToken: extra?['tempToken'] ?? '',);
     },
   ),
 
