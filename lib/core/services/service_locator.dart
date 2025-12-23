@@ -12,6 +12,12 @@ import 'package:vfxmoney/features/auth/domain/auth_usecases/login_usecase.dart';
 import 'package:vfxmoney/features/auth/domain/auth_usecases/otp_auth_usecase.dart';
 import 'package:vfxmoney/features/auth/domain/auth_usecases/signup_usecase.dart';
 import 'package:vfxmoney/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:vfxmoney/features/dashboard/data/dashboard_datasource/dashboard_datasource.dart';
+import 'package:vfxmoney/features/dashboard/data/dashboard_datasource/dashboard_datasource_impl.dart';
+import 'package:vfxmoney/features/dashboard/data/dashboard_repo_impl/dashboard_repo_impl.dart';
+import 'package:vfxmoney/features/dashboard/domain/dashboard_repo/dashboard_repo.dart';
+import 'package:vfxmoney/features/dashboard/domain/dashboard_usecase/get_cards_usecase.dart';
+import 'package:vfxmoney/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:vfxmoney/features/theme/bloc/theme_bloc.dart';
 
 import 'api_service.dart';
@@ -73,6 +79,11 @@ void _registerDataSources() {
   locator.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(apiService: locator<ApiService>()),
   );
+
+  // Dashboard DataSource
+  locator.registerLazySingleton<DashboardDatasource>(
+    () => DashboardDatasourceImpl(locator<ApiService>()),
+  );
 }
 
 // Repositories
@@ -80,14 +91,25 @@ void _registerRepositories() {
   locator.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(remoteDataSource: locator()),
   );
+  // Dashboard Repository
+  locator.registerLazySingleton<DashboardRepo>(
+    () => DashboardRepoImpl(locator()),
+  );
 }
 
 // Usecases
 void _registerUseCases() {
   locator.registerLazySingleton(() => LoginUseCase(locator<AuthRepository>()));
-  locator.registerLazySingleton(() => RegisterUseCase(locator<AuthRepository>()));
+  locator.registerLazySingleton(
+    () => RegisterUseCase(locator<AuthRepository>()),
+  );
   locator.registerLazySingleton(
     () => VerifyOtpUseCase(locator<AuthRepository>()),
+  );
+
+  // Dashboard UseCases
+  locator.registerLazySingleton(
+    () => GetCardsUseCase(locator<DashboardRepo>()),
   );
 }
 
@@ -100,6 +122,9 @@ void _registerBlocs() {
       verifyOtpUseCase: locator<VerifyOtpUseCase>(),
     ),
   );
+
+  // Dashboard Bloc
+  locator.registerFactory(() => DashboardBloc(locator<GetCardsUseCase>()));
 }
 // JwtEncryptionService (if not already)
 

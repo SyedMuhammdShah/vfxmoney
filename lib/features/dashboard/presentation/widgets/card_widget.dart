@@ -1,54 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:vfxmoney/features/dashboard/domain/dashboard_entity/card_entity.dart';
 import 'package:vfxmoney/features/dashboard/presentation/widgets/flip_card_widget.dart';
-import 'package:vfxmoney/shared/model/form_field_Model.dart';
 import 'package:vfxmoney/shared/popUp/create_card_popup.dart';
 import 'package:vfxmoney/shared/popUp/load_money_popup.dart';
 import 'package:vfxmoney/shared/popUp/unload_money_popup.dart';
 import 'package:vfxmoney/shared/widgets/app_text.dart';
-import 'package:vfxmoney/shared/widgets/custom_dynamic_for_popup.dart';
 
 class VortexCardWalletWidget extends StatefulWidget {
-  const VortexCardWalletWidget({Key? key}) : super(key: key);
+  /// 🔥 Cards coming from SERVER
+  final List<CardHolderEntity> cards;
 
-  /// 🔥 Global consistent card height across all screens
-  static const double cardHeight = 220; // Increased from 180
+  const VortexCardWalletWidget({
+    Key? key,
+    required this.cards,
+  }) : super(key: key);
+
+  static const double cardHeight = 220;
 
   @override
-  State<VortexCardWalletWidget> createState() => _VortexCardWalletWidgetState();
+  State<VortexCardWalletWidget> createState() =>
+      _VortexCardWalletWidgetState();
 }
 
 class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
-  final PageController _pageController = PageController(viewportFraction: 1.0);
+  late final PageController _pageController;
   int _currentPage = 0;
-
-  final List<CardData> cards = [
-    CardData(
-      balance: '\$9,858.75',
-      cardNumber: '**** **** **** 8472',
-      holderName: 'JOHN SMITH',
-      expiryDate: '12/25',
-    ),
-    CardData(
-      balance: '\$5,234.50',
-      cardNumber: '**** **** **** 3291',
-      holderName: 'JANE DOE',
-      expiryDate: '09/26',
-    ),
-    CardData(
-      balance: '\$12,500.00',
-      cardNumber: '**** **** **** 7834',
-      holderName: 'MIKE JOHNSON',
-      expiryDate: '03/27',
-    ),
-  ];
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(viewportFraction: 1.0);
+
     _pageController.addListener(() {
-      int newIndex = _pageController.page!.round();
-      if (_currentPage != newIndex) {
-        setState(() => _currentPage = newIndex);
+      final index = _pageController.page?.round() ?? 0;
+      if (index != _currentPage) {
+        setState(() => _currentPage = index);
       }
     });
   }
@@ -61,19 +47,27 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
 
   @override
   Widget build(BuildContext context) {
+    /// 🛑 Empty state
+    if (widget.cards.isEmpty) {
+      return const Center(child: Text('No cards available'));
+    }
+
     return SingleChildScrollView(
       child: Column(
         children: [
+          /// 🔥 CARD SLIDER
           SizedBox(
             height: VortexCardWalletWidget.cardHeight,
             width: double.infinity,
             child: PageView.builder(
-              controller: PageController(viewportFraction: 1.0), // FIX HERE
-              itemCount: cards.length,
+              controller: _pageController,
+              itemCount: widget.cards.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: FlippableCard(cardData: cards[index]),
+                  child: FlippableCard(
+                    cardData: widget.cards[index],
+                  ),
                 );
               },
             ),
@@ -81,11 +75,11 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
 
           const SizedBox(height: 20),
 
-          // 🔸 Page Indicator
+          /// 🔸 PAGE INDICATOR
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
-              cards.length,
+              widget.cards.length,
               (index) => AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -103,7 +97,7 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
 
           const SizedBox(height: 15),
 
-          // 🔥 Balance Card (Reusable everywhere, consistent UI)
+          /// 🔥 AVAILABLE BALANCE (AUTO CHANGES)
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 24),
             padding: const EdgeInsets.all(12),
@@ -111,13 +105,14 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                color:
+                    Theme.of(context).colorScheme.secondary.withOpacity(0.3),
                 width: 1,
               ),
             ),
             child: Column(
               children: [
-                // Top Row
+                /// Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -126,13 +121,15 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
                         AppText(
                           'Available Balance',
                           fontSize: 11,
-                          color: Theme.of(context).colorScheme.secondary,
+                          color:
+                              Theme.of(context).colorScheme.secondary,
                           textStyle: 'jb',
                         ),
                         const SizedBox(width: 8),
                         Icon(
                           Icons.visibility_off_outlined,
-                          color: Theme.of(context).colorScheme.secondary,
+                          color:
+                              Theme.of(context).colorScheme.secondary,
                           size: 18,
                         ),
                       ],
@@ -142,13 +139,15 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
                         AppText(
                           'View More',
                           fontSize: 9,
-                          color: Theme.of(context).colorScheme.secondary,
+                          color:
+                              Theme.of(context).colorScheme.secondary,
                           textStyle: 'jb',
                         ),
                         const SizedBox(width: 4),
                         Icon(
                           Icons.keyboard_arrow_down,
-                          color: Theme.of(context).colorScheme.secondary,
+                          color:
+                              Theme.of(context).colorScheme.secondary,
                           size: 20,
                         ),
                       ],
@@ -158,12 +157,14 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
 
                 const SizedBox(height: 8),
 
+                /// 🔥 BALANCE OF CURRENT CARD
                 Align(
                   alignment: Alignment.centerLeft,
                   child: AppText(
-                    cards[_currentPage].balance,
+                    widget.cards[_currentPage].balance,
                     fontSize: 18,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color:
+                        Theme.of(context).colorScheme.onSurface,
                     textStyle: 'hb',
                     w: FontWeight.bold,
                   ),
@@ -174,7 +175,7 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
 
           const SizedBox(height: 15),
 
-          // 🔥 Action Buttons (consistent across screens)
+          /// 🔥 ACTION BUTTONS (UNCHANGED)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
@@ -190,21 +191,24 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
                 _buildActionButton(
                   icon: Icons.account_balance_wallet_outlined,
                   label: 'Unload',
-                  color: Theme.of(context).colorScheme.secondary,
+                  color:
+                      Theme.of(context).colorScheme.secondary,
                   isActive: false,
                   onTap: () => UnloadMoneyPopup.show(context),
                 ),
                 _buildActionButton(
                   icon: Icons.receipt_long_outlined,
                   label: 'Transaction',
-                  color: Theme.of(context).colorScheme.secondary,
+                  color:
+                      Theme.of(context).colorScheme.secondary,
                   isActive: false,
                   onTap: () => CreateCardPopup.show(context),
                 ),
                 _buildActionButton(
                   icon: Icons.lock_outline,
                   label: 'Hold',
-                  color: Theme.of(context).colorScheme.secondary,
+                  color:
+                      Theme.of(context).colorScheme.secondary,
                   isActive: false,
                 ),
               ],
@@ -242,34 +246,20 @@ class _VortexCardWalletWidgetState extends State<VortexCardWalletWidget> {
             ),
             child: Icon(
               icon,
-              color: isActive ? color : Theme.of(context).colorScheme.secondary,
+              color:
+                  isActive ? color : Theme.of(context).colorScheme.secondary,
             ),
           ),
           const SizedBox(height: 6),
           AppText(
             label,
             fontSize: 10,
-            color: isActive ? color : Theme.of(context).colorScheme.secondary,
+            color:
+                isActive ? color : Theme.of(context).colorScheme.secondary,
             textStyle: 'jb',
           ),
         ],
       ),
     );
   }
-}
-
-// ------------------ Supporting Classes -------------------
-
-class CardData {
-  final String balance;
-  final String cardNumber;
-  final String holderName;
-  final String expiryDate;
-
-  CardData({
-    required this.balance,
-    required this.cardNumber,
-    required this.holderName,
-    required this.expiryDate,
-  });
 }

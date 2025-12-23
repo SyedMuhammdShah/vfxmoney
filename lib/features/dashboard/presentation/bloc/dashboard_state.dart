@@ -1,17 +1,17 @@
-import 'package:vfxmoney/features/dashboard/domain/dashboard_entity/card_details_entity.dart';
+import 'package:vfxmoney/features/dashboard/domain/dashboard_entity/card_entity.dart';
 
-abstract class CardState {}
+abstract class DashboardState {}
 
-class CardInitial extends CardState {}
+class CardLoading extends DashboardState {}
 
-class CardLoading extends CardState {}
+class CardLoaded extends DashboardState {
+  final List<CardHolderEntity> cards;
+  final int currentIndex;
 
-class CardLoaded extends CardState {
-  final CardDetailsEntity details;
-  CardLoaded(this.details);
+  CardLoaded(this.cards, this.currentIndex);
 }
 
-class CardError extends CardState {
+class CardError extends DashboardState {
   final String message;
   CardError(this.message);
 }

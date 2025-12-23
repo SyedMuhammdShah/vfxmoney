@@ -7,6 +7,7 @@ import 'package:vfxmoney/core/constants/app_colors.dart';
 import 'package:vfxmoney/core/services/service_locator.dart';
 import 'package:vfxmoney/core/theme/app_theme.dart';
 import 'package:vfxmoney/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:vfxmoney/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:vfxmoney/features/theme/bloc/theme_bloc.dart';
 import 'package:vfxmoney/features/theme/bloc/theme_state.dart';
 
@@ -32,6 +33,7 @@ Future<void> main() async {
         BlocProvider(create: (context) => locator<AuthBloc>(), lazy: true),
 
         BlocProvider(create: (context) => locator<ThemeBloc>()), // NEW
+        BlocProvider(create: (context) => locator<DashboardBloc>()), // NEW
       ],
       child: Stack(
         alignment: Alignment.bottomCenter,
