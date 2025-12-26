@@ -47,7 +47,7 @@
               const SizedBox(height: 16),
 
               /// Wallet Widget Example With Data
-              VortexCardWalletWidget(cards: [],),
+              VortexCardWalletWidget(),
 
               SizedBox(height: 480, child: TransactionListScreen()),
             ],

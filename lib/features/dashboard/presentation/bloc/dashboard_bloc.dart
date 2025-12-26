@@ -4,21 +4,23 @@ import 'package:vfxmoney/features/dashboard/presentation/bloc/dashboard_event.da
 import 'package:vfxmoney/features/dashboard/presentation/bloc/dashboard_state.dart';
 
 class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
-  final GetCardsUseCase getCardsUseCase;
+  final GetCardsUseCase getCards;
 
-  DashboardBloc(this.getCardsUseCase) : super(CardLoading()) {
-    on<FetchCards>(_fetchCards);
-    on<CardPageChanged>(_changePage);
+  DashboardBloc(this.getCards) : super(DashboardLoading()) {
+    on<FetchCards>(_onFetch);
+    on<CardChanged>(_onCardChanged);
   }
 
-  Future<void> _fetchCards(FetchCards event, Emitter emit) async {
-    emit(CardLoading());
-    final cards = await getCardsUseCase(event.linkId);
-    emit(CardLoaded(cards, 0));
+  Future<void> _onFetch(FetchCards event, Emitter emit) async {
+    emit(DashboardLoading());
+
+    final cards = await getCards(event.linkId);
+
+    emit(DashboardLoaded(cards: cards, activeIndex: 0));
   }
 
-  void _changePage(CardPageChanged event, Emitter emit) {
-    final state = this.state as CardLoaded;
-    emit(CardLoaded(state.cards, event.index));
+  void _onCardChanged(CardChanged event, Emitter emit) {
+    final current = state as DashboardLoaded;
+    emit(DashboardLoaded(cards: current.cards, activeIndex: event.index));
   }
 }

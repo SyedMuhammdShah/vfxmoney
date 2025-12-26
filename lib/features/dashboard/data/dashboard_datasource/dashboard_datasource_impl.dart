@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:vfxmoney/core/params/dashboard_params/card_details_params.dart';
 import 'package:vfxmoney/core/services/api_service.dart';
 import 'package:vfxmoney/features/dashboard/data/dashboard_datasource/dashboard_datasource.dart';
@@ -8,8 +10,6 @@ class DashboardDatasourceImpl implements DashboardDatasource {
   final ApiService apiService;
 
   DashboardDatasourceImpl(this.apiService);
-
-  @override
   Future<List<CardHolderModel>> getCards(int linkId) async {
     final response = await apiService.post(
       '',
@@ -17,7 +17,18 @@ class DashboardDatasourceImpl implements DashboardDatasource {
       isAuthorize: true,
     );
 
-    final List data = response.data['data'];
-    return data.map((e) => CardHolderModel.fromJson(e)).toList();
+    /// 🔥 IMPORTANT FIX
+    final raw = response.data['raw'] as String;
+
+    final jsonString = RegExp(
+      r's:\d+:"(.*)";$',
+      dotAll: true,
+    ).firstMatch(raw)!.group(1)!;
+
+    final decoded = jsonDecode(jsonString);
+
+    final List list = decoded['data'];
+
+    return list.map((e) => CardHolderModel.fromJson(e)).toList();
   }
 }

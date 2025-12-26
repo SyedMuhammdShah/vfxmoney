@@ -12,7 +12,8 @@ class FetchCards extends DashboardEvent {
   FetchCards(this.linkId);
 }
 
-class CardPageChanged extends DashboardEvent {
+
+class CardChanged extends DashboardEvent {
   final int index;
-  CardPageChanged(this.index);
+  CardChanged(this.index);
 }

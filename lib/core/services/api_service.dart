@@ -259,6 +259,22 @@ class ApiService {
     }
   }
 
+  Map<String, dynamic> normalizeResponse(dynamic response) {
+    if (response is Map && response['raw'] != null) {
+      final raw = response['raw'] as String;
+
+      /// Remove PHP serialization wrapper
+      final jsonString = raw
+          .replaceFirst(RegExp(r'^s:\d+:"'), '')
+          .replaceAll(RegExp(r'";$'), '');
+          
+
+      return jsonDecode(jsonString) as Map<String, dynamic>;
+    }
+
+    return response as Map<String, dynamic>;
+  }
+
   // PUT, DELETE, PATCH follow the same pattern of decrypt attempts as POST/GET.
   // You can implement them similarly if you need them.
 }

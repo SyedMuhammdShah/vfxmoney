@@ -1,11 +1,10 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:vfxmoney/features/dashboard/domain/dashboard_entity/card_entity.dart';
 import 'package:vfxmoney/features/dashboard/presentation/widgets/card_widget.dart';
 
 // Updated FlippableCard widget that uses images
 class FlippableCard extends StatefulWidget {
-  final CardHolderEntity cardData;
+  final CardData cardData;
 
   const FlippableCard({Key? key, required this.cardData}) : super(key: key);
 
@@ -207,7 +206,7 @@ class _FlippableCardState extends State<FlippableCard>
                             ),
                             SizedBox(height: 2),
                             Text(
-                              widget.cardData.cardHolderName,
+                              widget.cardData.expiryDate,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -243,7 +242,7 @@ class _FlippableCardState extends State<FlippableCard>
                     //SizedBox(height: 10),
                     // Cardholder Name
                     Text(
-                      widget.cardData.cardHolderName,
+                      widget.cardData.holderName,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,

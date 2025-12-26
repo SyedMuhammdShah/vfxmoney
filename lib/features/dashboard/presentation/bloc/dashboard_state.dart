@@ -2,16 +2,18 @@ import 'package:vfxmoney/features/dashboard/domain/dashboard_entity/card_entity.
 
 abstract class DashboardState {}
 
-class CardLoading extends DashboardState {}
+class DashboardLoading extends DashboardState {}
 
-class CardLoaded extends DashboardState {
+class DashboardLoaded extends DashboardState {
   final List<CardHolderEntity> cards;
-  final int currentIndex;
+  final int activeIndex;
 
-  CardLoaded(this.cards, this.currentIndex);
+  DashboardLoaded({required this.cards, required this.activeIndex});
+
+  CardHolderEntity get activeCard => cards[activeIndex];
 }
 
-class CardError extends DashboardState {
+class DashboardError extends DashboardState {
   final String message;
-  CardError(this.message);
+  DashboardError(this.message);
 }
