@@ -16,6 +16,9 @@ import 'package:vfxmoney/features/dashboard/data/dashboard_datasource/dashboard_
 import 'package:vfxmoney/features/dashboard/data/dashboard_datasource/dashboard_datasource_impl.dart';
 import 'package:vfxmoney/features/dashboard/data/dashboard_repo_impl/dashboard_repo_impl.dart';
 import 'package:vfxmoney/features/dashboard/domain/dashboard_repo/dashboard_repo.dart';
+import 'package:vfxmoney/features/dashboard/domain/dashboard_usecase/create_card_usecase.dart';
+import 'package:vfxmoney/features/dashboard/domain/dashboard_usecase/get_card_balance_usecase.dart';
+import 'package:vfxmoney/features/dashboard/domain/dashboard_usecase/get_card_detail_usecase.dart';
 import 'package:vfxmoney/features/dashboard/domain/dashboard_usecase/get_cards_usecase.dart';
 import 'package:vfxmoney/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:vfxmoney/features/theme/bloc/theme_bloc.dart';
@@ -111,10 +114,20 @@ void _registerUseCases() {
   locator.registerLazySingleton(
     () => GetCardsUseCase(locator<DashboardRepo>()),
   );
+  locator.registerLazySingleton(
+    () => GetCardBalanceUseCase(locator<DashboardRepo>()),
+  );
+  locator.registerLazySingleton(
+    () => GetCardDetailsUseCase(locator<DashboardRepo>()),
+  );
+  locator.registerLazySingleton(
+    () => CreateCardUseCase(locator<DashboardRepo>(), locator<StorageService>()),
+  );
 }
 
 // Bloc (factory so new instance per consumer)
 void _registerBlocs() {
+  // Auth Bloc
   locator.registerFactory(
     () => AuthBloc(
       loginUseCase: locator<LoginUseCase>(),
@@ -124,7 +137,14 @@ void _registerBlocs() {
   );
 
   // Dashboard Bloc
-  locator.registerFactory(() => DashboardBloc(locator<GetCardsUseCase>()));
+  locator.registerFactory(
+    () => DashboardBloc(
+      locator<GetCardsUseCase>(),
+      locator<GetCardBalanceUseCase>(),
+      locator<GetCardDetailsUseCase>(),
+      locator<CreateCardUseCase>(),
+    ),
+  );
 }
 // JwtEncryptionService (if not already)
 

@@ -1,5 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vfxmoney/features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'package:vfxmoney/features/dashboard/presentation/bloc/dashboard_event.dart';
 import 'package:vfxmoney/features/dashboard/presentation/widgets/card_widget.dart';
 
 // Updated FlippableCard widget that uses images
@@ -39,6 +42,9 @@ class _FlippableCardState extends State<FlippableCard>
 
   void _flipCard() {
     if (_isFront) {
+      context.read<DashboardBloc>().add(
+        FetchCardDetails(int.parse(widget.cardData.cardId)),
+      );
       _controller.forward();
     } else {
       _controller.reverse();
@@ -228,7 +234,8 @@ class _FlippableCardState extends State<FlippableCard>
                             ),
                             SizedBox(height: 2),
                             Text(
-                              '000',
+                              widget.cardData.cvv,
+
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,

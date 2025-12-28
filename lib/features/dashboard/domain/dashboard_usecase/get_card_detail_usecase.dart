@@ -1,13 +1,12 @@
-// import 'package:vfxmoney/core/params/dashboard_params/card_details_params.dart';
-// import 'package:vfxmoney/features/dashboard/domain/dashboard_entity/card_details_entity.dart';
-// import 'package:vfxmoney/features/dashboard/domain/dashboard_repo/dashboard_repo.dart';
+import 'package:vfxmoney/features/dashboard/domain/dashboard_entity/card_details_entity.dart';
+import 'package:vfxmoney/features/dashboard/domain/dashboard_repo/dashboard_repo.dart';
 
-// class GetCardDetailsUseCase {
-//   final CardRepository repository;
+class GetCardDetailsUseCase {
+  final DashboardRepo repo;
 
-//   GetCardDetailsUseCase(this.repository);
+  GetCardDetailsUseCase(this.repo);
 
-//   Future<CardDetailsEntity> call(CardDetailsParams params) {
-//     return repository.getCardDetails(params);
-//   }
-// }
+  Future<CardDetailsEntity> call(int cardId) {
+    return repo.getCardDetails(cardId);
+  }
+}
